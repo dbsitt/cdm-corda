@@ -1,8 +1,0 @@
-[INFO ] 2019-10-08T05:31:30,678 [background-preinit] Version - HV000001: Hibernate Validator 6.0.9.Final
-[INFO ] 2019-10-08T05:31:34,477 [background-preinit] Version - HV000001: Hibernate Validator 6.0.9.Final
-[INFO ] 2019-10-08T06:28:28,537 [background-preinit] Version - HV000001: Hibernate Validator 6.0.9.Final
-[INFO ] 2019-10-08T08:47:27,675 [background-preinit] Version - HV000001: Hibernate Validator 6.0.9.Final
-[INFO ] 2019-10-08T09:25:19,223 [background-preinit] Version - HV000001: Hibernate Validator 6.0.9.Final
-[INFO ] 2019-10-08T09:26:03,621 [background-preinit] Version - HV000001: Hibernate Validator 6.0.9.Final
-[WARN ] 2019-10-08T09:48:48,534 [Thread-37 (ActiveMQ-client-global-threads)] client - AMQ212037: Connection failure has been detected: AMQ119015: The connection was disconnected because of server shutdown [code=DISCONNECTED]
-[WARN ] 2019-10-08T09:48:49,700 [Thread-23 (ActiveMQ-client-global-threads)] client - AMQ212037: Connection failure has been detected: AMQ119015: The connection was disconnected because of server shutdown [code=DISCONNECTED]
