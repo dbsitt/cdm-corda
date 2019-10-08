@@ -8,6 +8,7 @@ import net.corda.cdmsupport.validators.CdmValidators
 import net.corda.cdmsupport.vaultquerying.DefaultCdmVaultQuery
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
+import net.corda.core.node.StatesToRecord
 import net.corda.core.transactions.SignedTransaction
 import org.isda.cdm.Event
 import org.isda.cdm.Execution
@@ -101,6 +102,8 @@ class ExecutionFlowInitiated(val flowSession: FlowSession) : FlowLogic<SignedTra
 
     @Suspendable
     override fun call(): SignedTransaction {
+
+
         val signedTransactionFlow = object : SignTransactionFlow(flowSession) {
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
 
@@ -111,5 +114,7 @@ class ExecutionFlowInitiated(val flowSession: FlowSession) : FlowLogic<SignedTra
         val signedId = subFlow(signedTransactionFlow)
 
         return subFlow(ReceiveFinalityFlow(otherSideSession = flowSession, expectedTxId = signedId.id))
+
+        //return subFlow(ReceiveFinalityFlow(flowSession,statesToRecord = StatesToRecord.ALL_VISIBLE))
     }
 }
