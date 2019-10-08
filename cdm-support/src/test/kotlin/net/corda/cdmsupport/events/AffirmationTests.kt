@@ -16,7 +16,7 @@ import kotlin.test.assertTrue
 
 class AffirmationTests : BaseEventTest() {
 
-    //@Test
+    @Test
     fun affirmation() {
         sendNewTradeInAndCheckAssertions("UC1_block_execute_BT1.json")
 

@@ -3,6 +3,7 @@ package com.derivhack
 import co.paralleluniverse.fibers.Suspendable
 import net.corda.cdmsupport.eventparsing.parseEventFromJson
 import net.corda.cdmsupport.transactionbuilding.CdmTransactionBuilder
+import net.corda.cdmsupport.validators.CdmValidators
 
 import net.corda.cdmsupport.vaultquerying.DefaultCdmVaultQuery
 
@@ -14,7 +15,7 @@ import java.util.function.Consumer
 
 @InitiatingFlow
 @StartableByRPC
-class AllocationFlow(val allocationJson: String) : FlowLogic<Unit>() {
+class AllocationFlow(val allocationJson: String) : FlowLogic<SignedTransaction>() {
 
     //TODO
     /**
@@ -28,7 +29,7 @@ class AllocationFlow(val allocationJson: String) : FlowLogic<Unit>() {
      */
 
     @Suspendable
-    override fun call() {
+    override fun call(): SignedTransaction {
 
         val evt = parseEventFromJson(allocationJson)
 
@@ -39,7 +40,7 @@ class AllocationFlow(val allocationJson: String) : FlowLogic<Unit>() {
 
         //create builder
         val builder = CdmTransactionBuilder(notary,evt,query)
-        builder.outputStates().forEach { System.out.println(it) }
+        builder.outputStates().forEach { System.out.println("OutputState = "+it) }
         //verify service hub
         builder.verify(serviceHub)
 
@@ -55,6 +56,8 @@ class AllocationFlow(val allocationJson: String) : FlowLogic<Unit>() {
         val regulator = serviceHub.identityService.partiesFromName("Observery",true).single()
         //create flow for regulator
         subFlow(ObserveryFlow(regulator,finalityTx))
+
+        return finalityTx
     }
 }
 

@@ -1,6 +1,7 @@
 package com.derivhack
 
 import co.paralleluniverse.fibers.Suspendable
+import com.rosetta.model.lib.validation.ValidationResult
 import net.corda.cdmsupport.eventparsing.parseEventFromJson
 import net.corda.cdmsupport.transactionbuilding.CdmTransactionBuilder
 import net.corda.cdmsupport.validators.CdmValidators
@@ -8,13 +9,14 @@ import net.corda.cdmsupport.vaultquerying.DefaultCdmVaultQuery
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
 import net.corda.core.transactions.SignedTransaction
+import org.isda.cdm.Event
 import org.isda.cdm.Execution
 import org.isda.cdm.ExecutionState
 import java.util.function.Consumer
 
 @InitiatingFlow
 @StartableByRPC
-class ExecutionFlow(val executionJson: String) : FlowLogic<Unit>() {
+class ExecutionFlow(val executionJson: String) : FlowLogic<SignedTransaction>() {
 
     //TODO
     /**
@@ -29,7 +31,7 @@ class ExecutionFlow(val executionJson: String) : FlowLogic<Unit>() {
 
 
     @Suspendable
-    override fun call() {
+    override fun call():SignedTransaction {
 
 
 
@@ -42,7 +44,7 @@ class ExecutionFlow(val executionJson: String) : FlowLogic<Unit>() {
 
         //create builder
         val builder = CdmTransactionBuilder(notary,evt,query)
-        builder.outputStates().forEach { System.out.println(it) }
+        builder.outputStates().forEach { System.out.println("OutputState = "+it) }
 
 
         //verify service hub
@@ -66,6 +68,7 @@ class ExecutionFlow(val executionJson: String) : FlowLogic<Unit>() {
         //create flow for regulator
         subFlow(ObserveryFlow(regulator,finalityTx))
 
+        return finalityTx
 
         //val rosettaObjectMapper = RosettaObjectMapper.getDefaultRosettaObjectMapper()
         //val exe = rosettaObjectMapper.readValue<org.isda.cdm.Execution>(executionJson, org.isda.cdm.Execution::class.java)

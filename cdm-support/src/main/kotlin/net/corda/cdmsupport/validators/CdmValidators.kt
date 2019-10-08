@@ -20,19 +20,22 @@ class CdmValidators() {
 
     fun validateExecution(execution: Execution){
         //TODO Your code here
-
+        //System.out.println("Execution:" + execution);
     }
 
     fun validateExecutionPrimitive(executionPrimitive: ExecutionPrimitive) {
         //TODO Your code here
+        //System.out.println("ExecutionPrimitive:" + executionPrimitive);
     }
 
     fun validateAllocationPrimitive(allocationPrimitive: AllocationPrimitive) {
         //TODO Your code here
+        //System.out.println("AllocationPrimitive:" + allocationPrimitive);
     }
 
     fun validateAffirmation(affirmation: Affirmation) {
         //TODO Your code here
+        //System.out.println("Affirmation:" + affirmation);
     }
 
 }
