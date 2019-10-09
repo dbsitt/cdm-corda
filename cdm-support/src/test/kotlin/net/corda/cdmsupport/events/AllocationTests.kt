@@ -11,7 +11,7 @@ import kotlin.test.assertNotNull
 
 class AllocationTests : BaseEventTest() {
 
-    //@Test
+    @Test
     fun allocation() {
 
         // --------- new trade

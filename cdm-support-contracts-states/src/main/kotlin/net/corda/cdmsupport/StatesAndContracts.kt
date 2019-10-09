@@ -18,7 +18,7 @@ class CDMEvent : Contract {
 
     override fun verify(tx: LedgerTransaction) {
         // TODO: Write the verify logic.
-        val command = tx.commands.requireSingleCommand<Commands>();
+        //val command = tx.commands.requireSingleCommand<Commands>();
 
         /*
         requireThat {
