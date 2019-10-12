@@ -1,5 +1,7 @@
 package net.corda.cdmsupport.events
 
+import com.derivhack.AffirmationFlow
+import com.derivhack.AllocationFlow
 import net.corda.cdmsupport.CDMEvent
 import net.corda.cdmsupport.eventparsing.readEventFromJson
 import net.corda.cdmsupport.states.AffirmationState
@@ -22,11 +24,11 @@ class AffirmationTests : BaseEventTest() {
 
         //----------------allocation
         val allocationEvent = readEventFromJson("/${samplesDirectory}/UC2_allocation_execution_AT1.json")
-        val allocationFuture = node2.services.startFlow(TestFlowInitiating(allocationEvent)).resultFuture
+        val allocationFuture = node2.services.startFlow(AllocationFlow(allocationEvent)).resultFuture
         val allocationTx = allocationFuture.getOrThrow().toLedgerTransaction(node2.services)
         checkTheBasicFabricOfTheTransaction(allocationTx, 1, 3, 0, 3)
 
-        val future = node1.services.startFlow(TestAffirmationFlow("vkFNMnTu1Fnk/p1gktgvz040El1XFnMwxYAVdILDlto=")).resultFuture
+        val future = node1.services.startFlow(AffirmationFlow("vkFNMnTu1Fnk/p1gktgvz040El1XFnMwxYAVdILDlto=")).resultFuture
 
         val tx = future.getOrThrow().toLedgerTransaction(node1.services)
 

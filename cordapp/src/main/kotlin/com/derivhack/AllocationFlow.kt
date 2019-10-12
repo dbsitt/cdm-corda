@@ -10,12 +10,13 @@ import net.corda.cdmsupport.vaultquerying.DefaultCdmVaultQuery
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
 import net.corda.core.transactions.SignedTransaction
+import org.isda.cdm.Event
 import java.util.function.Consumer
 
 
 @InitiatingFlow
 @StartableByRPC
-class AllocationFlow(val allocationJson: String) : FlowLogic<SignedTransaction>() {
+class AllocationFlow(val evt: Event) : FlowLogic<SignedTransaction>() {
 
     //TODO
     /**
@@ -31,7 +32,7 @@ class AllocationFlow(val allocationJson: String) : FlowLogic<SignedTransaction>(
     @Suspendable
     override fun call(): SignedTransaction {
 
-        val evt = parseEventFromJson(allocationJson)
+        //val evt = parseEventFromJson(allocationJson)
 
         //get notary
         val notary = serviceHub.networkMapCache.notaryIdentities.first()

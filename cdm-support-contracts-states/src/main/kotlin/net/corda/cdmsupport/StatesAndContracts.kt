@@ -13,6 +13,7 @@ class CDMEvent : Contract {
 
     interface Commands : CommandData {
         class Affirmation() : Commands
+        class Confirmation() : Commands
         class Execution(val outputIndex: Int) : Commands
     }
 

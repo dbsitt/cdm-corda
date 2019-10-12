@@ -1,5 +1,6 @@
 package net.corda.cdmsupport.events
 
+import com.derivhack.ExecutionFlow
 import net.corda.cdmsupport.CDMEvent
 import net.corda.cdmsupport.eventparsing.readEventFromJson
 import net.corda.cdmsupport.states.ExecutionState
@@ -26,23 +27,27 @@ abstract class BaseEventTest(val samplesDirectory: String = "jsons") {
     lateinit var node2: TestStartedNode
     lateinit var node3: TestStartedNode
     lateinit var node4: TestStartedNode
+    lateinit var node5: TestStartedNode
     lateinit var party1: Party
     lateinit var party2: Party
     lateinit var party3: Party
     lateinit var party4: Party
+    lateinit var party5: Party
 
     @Before
     fun setup() {
-        mockNetwork = InternalMockNetwork(cordappsForAllNodes = cordappsForPackages("net.corda.cdmsupport.testflow", "net.corda.cdmsupport"),
+        mockNetwork = InternalMockNetwork(cordappsForAllNodes = cordappsForPackages( "com.derivhack","net.corda.cdmsupport.testflow", "net.corda.cdmsupport"),
                 threadPerNode = true, initialNetworkParameters = testNetworkParameters(minimumPlatformVersion = 4))
         node1 = mockNetwork.createPartyNode(CordaX500Name(organisation = "Client1", locality = "New York", country = "US"))
         node2 = mockNetwork.createPartyNode(CordaX500Name(organisation = "Broker1", locality = "New York", country = "US"))
         node3 = mockNetwork.createPartyNode(CordaX500Name(organisation = "Broker2", locality = "New York", country = "US"))
         node4 = mockNetwork.createPartyNode(CordaX500Name(organisation = "Observery", locality = "New York", country = "US"))
+        node5 = mockNetwork.createPartyNode(CordaX500Name(organisation = "SettlementAgent", locality = "New York", country = "US"))
         party1 = node1.services.myInfo.legalIdentities.first()
         party2 = node2.services.myInfo.legalIdentities.first()
         party3 = node3.services.myInfo.legalIdentities.first()
         party4 = node4.services.myInfo.legalIdentities.first()
+        party5 = node5.services.myInfo.legalIdentities.first()
     }
 
     @After
@@ -53,7 +58,7 @@ abstract class BaseEventTest(val samplesDirectory: String = "jsons") {
 
     protected fun sendNewTradeInAndCheckAssertions(jsonFileName: String) {
         val newTradeEvent = readEventFromJson("/${samplesDirectory}/$jsonFileName")
-        val future = node2.services.startFlow(TestFlowInitiating(newTradeEvent)).resultFuture
+        val future = node2.services.startFlow(ExecutionFlow(newTradeEvent)).resultFuture
         val tx = future.getOrThrow().toLedgerTransaction(node2.services)
 
         checkTheBasicFabricOfTheTransaction(tx, 0, 1, 0, 1)

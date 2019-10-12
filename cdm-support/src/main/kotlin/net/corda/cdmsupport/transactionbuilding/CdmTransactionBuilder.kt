@@ -23,7 +23,6 @@ class CdmTransactionBuilder(notary: Party? = null,
     val participantsFromInputs = mutableSetOf<AbstractParty>()
 
     init {
-
         event.primitive.allocation?.forEach { processAllocationPrimitive(it) }
         event.primitive.execution?.forEach { processeExecutionPrimitive(it) }
     }

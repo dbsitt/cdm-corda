@@ -1,5 +1,6 @@
 package net.corda.cdmsupport.events
 
+import com.derivhack.AllocationFlow
 import net.corda.cdmsupport.eventparsing.readEventFromJson
 import net.corda.cdmsupport.states.ExecutionState
 import net.corda.cdmsupport.testflow.TestFlowInitiating
@@ -19,7 +20,7 @@ class AllocationTests : BaseEventTest() {
 
         //----------------allocation
         val allocationEvent = readEventFromJson("/${samplesDirectory}/UC2_allocation_execution_AT1.json")
-        val future = node2.services.startFlow(TestFlowInitiating(allocationEvent)).resultFuture
+        val future = node2.services.startFlow(AllocationFlow(allocationEvent)).resultFuture
         val tx = future.getOrThrow().toLedgerTransaction(node2.services)
         checkTheBasicFabricOfTheTransaction(tx, 1, 3, 0, 3)
 

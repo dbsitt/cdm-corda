@@ -17,7 +17,7 @@ import java.util.function.Consumer
 
 @InitiatingFlow
 @StartableByRPC
-class ExecutionFlow(val executionJson: String) : FlowLogic<SignedTransaction>() {
+class ExecutionFlow(val evt: Event) : FlowLogic<SignedTransaction>() {
 
     //TODO
     /**
@@ -36,7 +36,7 @@ class ExecutionFlow(val executionJson: String) : FlowLogic<SignedTransaction>() 
 
 
 
-        val evt = parseEventFromJson(executionJson)
+        //val evt = parseEventFromJson(executionJson)
 
         //get notary
         val notary = serviceHub.networkMapCache.notaryIdentities.first()
