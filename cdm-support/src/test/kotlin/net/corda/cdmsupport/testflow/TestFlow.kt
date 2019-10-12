@@ -19,7 +19,7 @@ class TestFlowInitiating(val event: Event) : FlowLogic<SignedTransaction>() {
         val signedByMe = serviceHub.signInitialTransaction(cdmTransactionBuilder)
 
         val counterPartySessions = cdmTransactionBuilder.getPartiesToSign().minus(ourIdentity).map { initiateFlow(it) }
-
+        println("#################@TestFlow TestFlowInitiating.call()...................")
         val regulator = serviceHub.identityService.partiesFromName("Observery", true).single()
 
         val fullySignedTx = subFlow(CollectSignaturesFlow(signedByMe, counterPartySessions, CollectSignaturesFlow.tracker()))

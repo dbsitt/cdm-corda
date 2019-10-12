@@ -1,0 +1,13 @@
+2019-10-11 17:17:37,124 main WARN Unable to instantiate org.fusesource.jansi.WindowsAnsiOutputStream
+2019-10-11 17:17:37,128 main WARN Unable to instantiate org.fusesource.jansi.WindowsAnsiOutputStream
+
+   ______               __
+  / ____/     _________/ /___ _
+ / /     __  / ___/ __  / __ `/         Moses had the first tablet that
+/ /___  /_/ / /  / /_/ / /_/ /          could connect to the cloud.
+\____/     /_/   \__,_/\__,_/
+
+--- Corda Open Source 4.1 (c11f6c1) -------------------------------------------------------------
+
+
+Logs can be found in                    : D:\Arvinth\BlockChain\DerivHack-2019\GIT\cdm-corda\build\nodes\Client1\logs

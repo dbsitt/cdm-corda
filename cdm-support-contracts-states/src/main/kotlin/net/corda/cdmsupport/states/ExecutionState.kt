@@ -16,6 +16,7 @@ data class ExecutionState(
         override val linearId:  UniqueIdentifier = UniqueIdentifier()) : LinearState {
 
     fun execution(): org.isda.cdm.Execution {
+        println("#########################@ExecutionState.execution()............")
         val rosettaObjectMapper = RosettaObjectMapper.getDefaultRosettaObjectMapper()
         return rosettaObjectMapper.readValue<org.isda.cdm.Execution>(executionJson, org.isda.cdm.Execution::class.java)
     }
