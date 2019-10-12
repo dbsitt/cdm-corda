@@ -45,7 +45,7 @@ class ExecutionFlow(val executionJson: String) : FlowLogic<SignedTransaction>() 
 
         //create builder
         val builder = CdmTransactionBuilder(notary,evt,query)
-        builder.outputStates().forEach { System.out.println("OutputState = "+it) }
+        //builder.outputStates().forEach { System.out.println("OutputState = "+it) }
 
 
         //verify service hub
@@ -71,31 +71,10 @@ class ExecutionFlow(val executionJson: String) : FlowLogic<SignedTransaction>() 
 
         return finalityTx
 
-        //val rosettaObjectMapper = RosettaObjectMapper.getDefaultRosettaObjectMapper()
-        //val exe = rosettaObjectMapper.readValue<org.isda.cdm.Execution>(executionJson, org.isda.cdm.Execution::class.java)
 
-        /*
-        val exeStt:ExecutionState = ExecutionState(executionJson,"","",ArrayList<Party>());
-
-        val exe = exeStt.execution()
-        exe.createExecutionWithPartiesFromEvent(evt)
-
-        //val exe:Execution = Execution.builder().build().createExecutionWithPartiesFromEvent(evt);
-
-        val validators = CdmValidators()
-        validators.validateExecution(exe)
-
-
-
-        val outputIndex = transactionBuilder.addOutputStateReturnIndex(exeStt,CDMEvent.ID)
-        val exeCmd = CDMEvent.Commands.Execution(outputIndex)
-        transactionBuilder.addCommand(exeCmd)
-
-        val signedTrans = serviceHub.signInitialTransaction(transactionBuilder)
-        subFlow(ObserveryFlow(ourIdentity,signedTrans))
-        */
     }
 }
+
 
 @InitiatedBy(ExecutionFlow::class)
 class ExecutionFlowInitiated(val flowSession: FlowSession) : FlowLogic<SignedTransaction>(){
