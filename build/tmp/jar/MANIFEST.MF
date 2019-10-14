@@ -1,5 +1,0 @@
-Manifest-Version: 1.0
-Implementation-Version: 0.1
-Name: net.corda.cdm-support.cdm-corda
-Implementation-Vendor: Unknown
-
