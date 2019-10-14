@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*
 /**
  * Define your API endpoints here.
  */
+@CrossOrigin(origins= ["*"])
 @RestController
 @RequestMapping("/") // The paths for HTTP requests are relative to this base path.
 class Controller(rpc: NodeRPCConnection) {
