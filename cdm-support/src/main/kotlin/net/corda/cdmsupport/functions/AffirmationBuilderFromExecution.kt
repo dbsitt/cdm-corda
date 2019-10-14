@@ -12,7 +12,6 @@ fun affirmationBuilderFromExecution(state : ExecutionState) : Affirmation {
                             .setGlobalReference(state.eventReference).build())
                     .addExecutionReference(ReferenceWithMetaExecution.ReferenceWithMetaExecutionBuilder()
                             .setGlobalReference(state.execution().meta.globalKey).build())
-
                     .build())
             .setStatus(AffirmationStatusEnum.AFFIRMED)
 

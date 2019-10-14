@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/cdm-corda.iml" filepath="$PROJECT_DIR$/.idea/modules/cdm-corda.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/cdm-support/cdm-corda.cdm-support.iml" filepath="$PROJECT_DIR$/.idea/modules/cdm-support/cdm-corda.cdm-support.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/cdm-support-contracts-states/cdm-corda.cdm-support-contracts-states.iml" filepath="$PROJECT_DIR$/.idea/modules/cdm-support-contracts-states/cdm-corda.cdm-support-contracts-states.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/cdm-support-contracts-states/cdm-corda.cdm-support-contracts-states.main.iml" filepath="$PROJECT_DIR$/.idea/modules/cdm-support-contracts-states/cdm-corda.cdm-support-contracts-states.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/cdm-support-contracts-states/cdm-corda.cdm-support-contracts-states.test.iml" filepath="$PROJECT_DIR$/.idea/modules/cdm-support-contracts-states/cdm-corda.cdm-support-contracts-states.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/cdm-support/cdm-corda.cdm-support.main.iml" filepath="$PROJECT_DIR$/.idea/modules/cdm-support/cdm-corda.cdm-support.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/cdm-support/cdm-corda.cdm-support.test.iml" filepath="$PROJECT_DIR$/.idea/modules/cdm-support/cdm-corda.cdm-support.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/clients/cdm-corda.clients.iml" filepath="$PROJECT_DIR$/.idea/modules/clients/cdm-corda.clients.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/clients/cdm-corda.clients.main.iml" filepath="$PROJECT_DIR$/.idea/modules/clients/cdm-corda.clients.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/clients/cdm-corda.clients.test.iml" filepath="$PROJECT_DIR$/.idea/modules/clients/cdm-corda.clients.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/cordapp/cdm-corda.cordapp.iml" filepath="$PROJECT_DIR$/.idea/modules/cordapp/cdm-corda.cordapp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/cordapp/cdm-corda.cordapp.integrationTest.iml" filepath="$PROJECT_DIR$/.idea/modules/cordapp/cdm-corda.cordapp.integrationTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/cordapp/cdm-corda.cordapp.main.iml" filepath="$PROJECT_DIR$/.idea/modules/cordapp/cdm-corda.cordapp.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/cordapp/cdm-corda.cordapp.test.iml" filepath="$PROJECT_DIR$/.idea/modules/cordapp/cdm-corda.cordapp.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/cdm-corda.integrationTest.iml" filepath="$PROJECT_DIR$/.idea/modules/cdm-corda.integrationTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/cdm-corda.main.iml" filepath="$PROJECT_DIR$/.idea/modules/cdm-corda.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/cdm-corda.test.iml" filepath="$PROJECT_DIR$/.idea/modules/cdm-corda.test.iml" />
+    </modules>
+  </component>
+</project>

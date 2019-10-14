@@ -25,6 +25,7 @@ class CdmTransactionBuilder(notary: Party? = null,
     init {
 
         event.primitive.allocation?.forEach { processAllocationPrimitive(it) }
+        //event.primitive.allocation?.forEach { processAllocationPrimitiveNew(it) }
         event.primitive.execution?.forEach { processeExecutionPrimitive(it) }
     }
 
@@ -39,7 +40,7 @@ class CdmTransactionBuilder(notary: Party? = null,
 
             val outputBeforeState = createExecutionState(allocationPrimitive.after.originalTrade.execution)
 
-            val outputAfterStates = allocationPrimitive.after.allocatedTrade.map { createExecutionStateFromAfterAllocation(it.execution) }
+            val outputAfterStates = allocationPrimitive.after.allocatedTrade.map { createExecutionStateFromAfterAllocation(it.execution, executionLineage) }
 
             val outputIndexOnBefore = this.addOutputStateReturnIndex(outputBeforeState, CDMEvent.ID)
             addCommand(CDMEvent.Commands.Execution(outputIndexOnBefore), outputBeforeState.participants.map { it.owningKey }.toSet().toList())
@@ -47,6 +48,29 @@ class CdmTransactionBuilder(notary: Party? = null,
             outputAfterStates.forEach {
                 val outputIndexOnAfter = this.addOutputStateReturnIndex(it, CDMEvent.ID)
                 addCommand(CDMEvent.Commands.Execution(outputIndexOnAfter), it.participants.map { p -> p.owningKey }.toSet().toList())
+            }
+        }
+    }
+
+    @Throws(RuntimeException::class)
+    private fun processAllocationPrimitiveNew(allocationPrimitive: AllocationPrimitive) {
+
+        val executionLineage = event.lineage.executionReference[0].globalReference
+
+        if (allocationPrimitive.validateLineageAndTotals(serviceHub!!, executionLineage)) {
+            val inputState = cdmVaultQuery.getCdmExecutionStateByMetaGlobalKey(executionLineage)
+            addInputState(inputState)
+
+            val outputBeforeState = createExecutionState(allocationPrimitive.after.originalTrade.execution)
+
+            val outputAfterStates = allocationPrimitive.after.allocatedTrade.map { createExecutionStateFromAfterAllocation(it.execution, executionLineage) }
+
+            val outputIndexOnBefore = this.addOutputStateReturnIndex(outputBeforeState, CDMEvent.ID)
+            addCommand(CDMEvent.Commands.Execution(outputIndexOnBefore), outputBeforeState.participants.map { it.owningKey }.toSet().toList())
+
+            outputAfterStates.forEach {
+                val outputIndexOnAfter = this.addOutputStateReturnIndex(it, CDMEvent.ID)
+                addCommand(CDMEvent.Commands.Allocation(outputIndexOnAfter), it.participants.map { p -> p.owningKey }.toSet().toList())
             }
         }
     }
@@ -83,8 +107,8 @@ class CdmTransactionBuilder(notary: Party? = null,
         return ExecutionState(json, event.meta.globalKey, AffirmationStatusEnum.UNAFFIRMED.name, participants, UniqueIdentifier())
     }
 
-    private fun createExecutionStateFromAfterAllocation(execution: Execution) : ExecutionState {
-        val executionWithParties : Execution = execution.createExecutionWithPartiesFromEvent(event)
+    private fun createExecutionStateFromAfterAllocation(execution: Execution, executionLineage: String) : ExecutionState {
+        val executionWithParties : Execution = execution.createExecutionWithPartiesFromAllocationEvent(event, executionLineage)
         val json = serializeCdmObjectIntoJson(executionWithParties)
         val participants = executionWithParties.mapPartyToCordaX500ForAllocation(serviceHub!!)
 

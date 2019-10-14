@@ -2,6 +2,7 @@ package com.derivhack.webserver
 
 import com.derivhack.AffirmationFlow
 import com.derivhack.AllocationFlow
+import com.derivhack.ConfirmationFlow
 import com.derivhack.ExecutionFlow
 import com.derivhack.webserver.models.AffirmationViewModel
 import com.derivhack.webserver.models.ExecutionViewModel
@@ -47,6 +48,14 @@ class Controller(rpc: NodeRPCConnection) {
         val tx = proxy.startFlowDynamic(AffirmationFlow::class.java, executionRef)
 
         return "Transaction with id: ${tx.id} created"
+    }
+
+    @PostMapping(value = ["/confirmation"])
+    private fun confirmation(@RequestParam executionRef: String): String {
+
+        val tx = proxy.startFlowDynamic(ConfirmationFlow::class.java, executionRef)
+
+        return "Transaction with id: ${tx.id} Confirmed"
     }
 
     @GetMapping(value = ["/execution-states"])

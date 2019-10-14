@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.gradle:gradle-tooling-api:4.10.1">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.gradle/gradle-tooling-api/4.10.1/ce8db6336fad440f1f95f11845fae93703d4c37/gradle-tooling-api-4.10.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.gradle/gradle-tooling-api/4.10.1/5ba4482906f0ec159e3db8ebbaee64f9bf37ee12/gradle-tooling-api-4.10.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

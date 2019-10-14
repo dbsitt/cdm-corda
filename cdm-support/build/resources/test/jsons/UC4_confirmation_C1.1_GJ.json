@@ -1,0 +1,143 @@
+{
+  "identifier" : [ {
+    "assignedIdentifier" : [ {
+      "identifier" : {
+        "value" : "K000000000001"
+      },
+      "version" : 1
+    } ],
+    "issuerReference" : {
+      "globalReference" : "3vqQOOnXah+v+Cwkdh/hSyDP7iD6lLGqRDW/500GvjU="
+    },
+    "meta" : {
+      "globalKey" : "UXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX1="
+    }
+  } ],
+  "lineage" : {
+    "eventReference" : [ {
+      "globalReference" : "PuitVBWvjXiUF2+7PaG+pXAASnYeIatGIVPTKfPVwQE="
+    } ],
+    "executionReference" : [ {
+      "globalReference" : "vkFNMnTu1Fnk/p1gktgvz040El1XFnMwxYAVdILDlto="
+    } ]
+  },
+  "party" : [ {
+    "account" : {
+      "accountName" : {
+        "value" : "Client1_ACT#2"
+      },
+      "accountNumber" : {
+        "value" : "Client1_ACT#2_BJKXFTGW4BFPY"
+      },
+      "meta" : {
+        "globalKey" : "cHT7pO5Q+p3hO3sxjl+ACvyGkYYWIBaA2PpVaRO/dvs="
+      }
+    },
+    "meta" : {
+      "globalKey" : "xIBwSYskqfYuo71OylXWHFH1u5lbAcAdAnM4LcNheBg=",
+      "externalKey" : "Client1_ID#2_CAOIBGBYU6QPR"
+    },
+    "name" : {
+      "value" : "Client1"
+    },
+    "partyId" : [ {
+      "value" : "Client1_ID#2_CAOIBGBYU6QPR"
+    } ]
+  },
+    {
+    "account" : {
+      "accountName" : {
+        "value" : "Broker1_ACT#0"
+      },
+      "accountNumber" : {
+        "value" : "Broker1_ACT#0_WWVA12ZJ21IW2"
+      },
+      "meta" : {
+        "globalKey" : "xvRB/LCSyPGS736BhYfTkW1AH56H1bzHHXbqZJepZ0w="
+      }
+    },
+    "meta" : {
+      "globalKey" : "3vqQOOnXah+v+Cwkdh/hSyDP7iD6lLGqRDW/500GvjU=",
+      "externalKey" : "Broker1_ID#0_4NGIDYZJ4ZBDX"
+    },
+    "name" : {
+      "value" : "Broker1"
+    },
+    "partyId" : [ {
+      "value" : "Broker1_ID#0_4NGIDYZJ4ZBDX"
+    } ]
+  },
+    {
+    "account" : {
+      "accountName" : {
+        "value" : "SettlementAgent_ACT#0"
+      },
+      "accountNumber" : {
+        "value" : "SettlementAgent_ACT#0_T000000000001"
+      },
+      "meta" : {
+        "globalKey" : "G000000000000000000000000000000000000000001="
+      }
+    },
+    "meta" : {
+      "globalKey" : "N00000000000000000000000000000000000000000M=",
+      "externalKey" : "SettlementAgent_ID#0_A000000000001"
+    },
+    "name" : {
+      "value" : "SettlementAgent"
+    },
+    "partyId" : [ {
+      "value" : "Broker2_ID#0_A000000000001"
+    } ]
+  },
+    {
+    "account" : {
+      "accountName" : {
+        "value" : "Client1_ACT#0"
+      },
+      "accountNumber" : {
+        "value" : "Client1_ACT#0_NQQVRTLFIT4HZ"
+      },
+      "meta" : {
+        "globalKey" : "BRsIov0pBnhQgjuC37YUVLXz5yno3Xkhu7yCZF+3uxY="
+      }
+    },
+    "meta" : {
+      "globalKey" : "GkATYHcJ0uWdD0klwf0/RCreumcOlWEKDvfHzLfNZiA=",
+      "externalKey" : "Client1_ID#0_NH90YY6QYVYHM"
+    },
+    "name" : {
+      "value" : "Client1"
+    },
+    "partyId" : [ {
+      "value" : "Client1_ID#0_NH90YY6QYVYHM"
+    } ]
+  } ],
+  "partyRole" : [ {
+    "partyReference" : {
+      "globalReference" : "GkATYHcJ0uWdD0klwf0/RCreumcOlWEKDvfHzLfNZiA="
+    },
+    "role" : "CLIENT"
+  }, {
+    "partyReference" : {
+	  "globalReference" : "3vqQOOnXah+v+Cwkdh/hSyDP7iD6lLGqRDW/500GvjU="
+    },
+    "role" : "EXECUTING_ENTITY"
+  }, {
+    "partyReference" : {
+	  "globalReference" : "N00000000000000000000000000000000000000000M="
+    },
+    "role" : "SETTLEMENT_AGENT"
+  }, {
+    "partyReference" : {
+	  "globalReference" : "GkATYHcJ0uWdD0klwf0/RCreumcOlWEKDvfHzLfNZiA="
+    },
+    "role" : "BUYER"
+  }, {
+    "partyReference" : {
+	  "globalReference" : "3vqQOOnXah+v+Cwkdh/hSyDP7iD6lLGqRDW/500GvjU="
+    },
+    "role" : "BUYER"
+  } ],
+  "status" : "CONFIRMED"
+}

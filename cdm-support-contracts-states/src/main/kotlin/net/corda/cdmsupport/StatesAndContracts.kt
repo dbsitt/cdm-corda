@@ -1,6 +1,7 @@
 package net.corda.cdmsupport
 
 import net.corda.cdmsupport.states.AffirmationState
+import net.corda.cdmsupport.states.ConfirmationState
 import net.corda.cdmsupport.states.ExecutionState
 import net.corda.core.contracts.*
 import net.corda.core.contracts.Requirements.using
@@ -19,17 +20,16 @@ class CDMEvent : Contract {
 
     interface Commands : CommandData {
         class Affirmation() : Commands
+        class Confirmation() : Commands
+        class Settlement() : Commands
+        class Transfer() : Commands
         class Execution(val outputIndex: Int) : Commands
+        class Allocation(val outputIndex: Int) : Commands
     }
 
     override fun verify(tx: LedgerTransaction) {
-
-
         processCommands(tx,tx.commands)
-
     }
-
-
 
     private fun processCommands(tx: LedgerTransaction,commands:List<CommandWithParties<CommandData>>){
 
@@ -47,6 +47,7 @@ class CDMEvent : Contract {
             when(command){
                 is Commands.Execution -> verifyExecutionCommand(command as Commands.Execution,tx,signers)
                 is Commands.Affirmation -> verifyAffirmationCommand(command as Commands.Affirmation,tx,signers)
+                is Commands.Confirmation -> verifyConfirmationCommand(command as Commands.Confirmation,tx,signers)
             }
         }
     }
@@ -121,7 +122,29 @@ class CDMEvent : Contract {
 
     }
 
+    private fun verifyConfirmationCommand(execution: Commands.Confirmation,tx: LedgerTransaction,signers: Set<PublicKey>) = requireThat {
 
+        val logger = loggerFor<StateAndContract>()
+
+        val inputState = tx.inputStates.find { it is ExecutionState } as ExecutionState
+
+        val confirmationState = tx.outputStates.find { it is ConfirmationState } as ConfirmationState
+        "Both parties together only may sign issue transaction." using (signers == keysFromParticipants(confirmationState))
+        val executionState = tx.outputStates.find { it is ExecutionState } as ExecutionState
+        "Both parties together only may sign issue transaction." using (signers == keysFromParticipants(executionState))
+
+
+
+        logger.debug("------ Input state execution: "+ inputState?.execution())
+        logger.debug("------ Output state affirm: "+ confirmationState?.confirmation())
+        logger.debug("------ Output state execution: "+ executionState?.execution())
+
+        logger.debug("------ Input state execution status: "+ inputState?.workflowStatus)
+        logger.debug("------ Output state affirm status: "+ confirmationState?.confirmation().status)
+        logger.debug("------ Output state execution status: "+ executionState?.workflowStatus)
+
+        "Status of out execution state and affirmation state are same." using (confirmationState?.confirmation().status.name == executionState?.workflowStatus)
+    }
 
     private fun keysFromParticipants(execution:ContractState): Set<PublicKey>{
         return execution.participants.map {
