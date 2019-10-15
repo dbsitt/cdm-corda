@@ -45,7 +45,7 @@ class WalletFlow(val moneyJson: String) : FlowLogic<SignedTransaction>() {
         parties.add(serviceHub.identityService
                 .wellKnownPartyFromX500Name(CordaX500Name.parse("O=${inputParty.name.value},L=New York,C=US"))!!)
         parties.add(serviceHub.identityService
-                .wellKnownPartyFromX500Name(CordaX500Name.parse("O=${settlementAgentParty.name.value},L=London,C=GB"))!!)
+                .wellKnownPartyFromX500Name(CordaX500Name.parse("O=${settlementAgentParty.name.value},L=New York,C=US"))!!)
         val participants = parties.toList()
 
         val moneyState = WalletState (newMoneyJson, newPartyJson, walletReference, inputParty.meta.globalKey, inputParty.name.value, inputParty.partyId[0].value, participants, UniqueIdentifier())
