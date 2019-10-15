@@ -119,7 +119,7 @@ class TransferTestGJ : BaseEventTestGJ() {
 
         //look closer at the commands
         assertTrue(tx6.commands.get(0).value is CDMEvent.Commands.Transfer)
-        assertTrue(tx6.commands.get(0).signers.containsAll(listOf(party5.owningKey, party1.owningKey, party2.owningKey)))
+        assertTrue(tx6.commands.get(0).signers.containsAll(listOf(party5.owningKey, party1.owningKey, party2.owningKey, party6.owningKey)))
     }
 
 }
