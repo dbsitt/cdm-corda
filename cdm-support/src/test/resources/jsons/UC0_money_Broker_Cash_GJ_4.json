@@ -1,0 +1,30 @@
+{
+  "amount" : 0,
+  "currency" : {
+    "value" : "USD"
+  }, 
+  "meta" : {
+    "globalKey" : "123"
+  }, 
+   "account" : {
+      "accountName" : {
+        "value" : "Broker1_ACT#0"
+      },
+      "accountNumber" : {
+        "value" : "Broker1_ACT#0_WWVA12ZJ21IW2"
+      },
+      "meta" : {
+        "globalKey" : "xvRB/LCSyPGS736BhYfTkW1AH56H1bzHHXbqZJepZ0w="
+      }
+    },
+    "meta" : {
+      "globalKey" : "3vqQOOnXah+v+Cwkdh/hSyDP7iD6lLGqRDW/500GvjU=",
+      "externalKey" : "Broker1_ID#0_4NGIDYZJ4ZBDX"
+    },
+    "name" : {
+      "value" : "Broker1"
+    },
+    "partyId" : [ {
+      "value" : "Broker1_ID#0_4NGIDYZJ4ZBDX"
+    } ]
+}
