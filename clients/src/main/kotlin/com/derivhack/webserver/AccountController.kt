@@ -15,8 +15,11 @@ import net.corda.cdmsupport.states.WalletState
 import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.utilities.getOrThrow
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpRequest
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import javax.json.Json
+import javax.json.JsonObject
 
 /**
  * Define your API endpoints here.
@@ -89,10 +92,9 @@ class AccountController(rpc: NodeRPCConnection) {
     }
 
     @PostMapping(value = ["/api/affirmation"])
-    private fun affirmation(@RequestParam executionRef: String): ResponseEntity<Any> {
+    private fun affirmation(@RequestBody request: executionRequest): ResponseEntity<Any> {
         val (status,message) = try {
-            println(">>>>>>>>>>>>>>>>>> [${executionRef}]");
-            val tx = proxy.startFlowDynamic(AffirmationFlow::class.java, executionRef)
+            val tx = proxy.startFlowDynamic(AffirmationFlow::class.java, request.executionRef)
             val result = tx.returnValue.getOrThrow();
             println(">>>>>>>>>>>>>>>>>>");
             CREATED to "Affirmed with the id: ${result.id}"
@@ -100,6 +102,9 @@ class AccountController(rpc: NodeRPCConnection) {
             BAD_REQUEST to e.message
         }
         return ResponseEntity.status(status.statusCode).body(message)
+    }
+
+    data class executionRequest(val executionRef: String) {
     }
 
     @GetMapping(value = ["/api/getAccounts"])
