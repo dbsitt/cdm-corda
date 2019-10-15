@@ -91,8 +91,10 @@ class AccountController(rpc: NodeRPCConnection) {
     @PostMapping(value = ["/api/affirmation"])
     private fun affirmation(@RequestParam executionRef: String): ResponseEntity<Any> {
         val (status,message) = try {
+            println(">>>>>>>>>>>>>>>>>> [${executionRef}]");
             val tx = proxy.startFlowDynamic(AffirmationFlow::class.java, executionRef)
             val result = tx.returnValue.getOrThrow();
+            println(">>>>>>>>>>>>>>>>>>");
             CREATED to "Affirmed with the id: ${result.id}"
         }catch(e :Exception) {
             BAD_REQUEST to e.message
