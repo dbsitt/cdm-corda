@@ -88,7 +88,7 @@ task runServerB1(type: JavaExec, dependsOn: assemble) {
 task runServerCollateralAgent(type: JavaExec, dependsOn: assemble) {
     classpath = sourceSets.main.runtimeClasspath
     main = 'com.derivhack.webserver.ServerKt'
-    args '--server.port=10060', '--config.rpc.host=localhost', '--config.rpc.port=10021', '--config.rpc.username=user4', '--config.rpc.password=test', '--config.sshd.port=2225'
+    args '--server.port=10060', '--config.rpc.host=localhost', '--config.rpc.port=10021', '--config.rpc.username=user8', '--config.rpc.password=test', '--config.sshd.port=2225'
 }
 
 task runServerSA(type: JavaExec, dependsOn: assemble) {
