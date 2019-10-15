@@ -99,7 +99,7 @@ task runServerSA(type: JavaExec, dependsOn: assemble) {
 task runServerB2(type: JavaExec, dependsOn: assemble) {
     classpath = sourceSets.main.runtimeClasspath
     main = 'com.derivhack.webserver.ServerKt'
-    args '--server.port=10080', '--config.rpc.host=localhost', '--config.rpc.port=10012', '--config.rpc.username=user2', '--config.rpc.password=test', '--config.sshd.port=2223'
+    args '--server.port=10080', '--config.rpc.host=localhost', '--config.rpc.port=10012', '--config.rpc.username=user3', '--config.rpc.password=test', '--config.sshd.port=2223'
 }
 
 
