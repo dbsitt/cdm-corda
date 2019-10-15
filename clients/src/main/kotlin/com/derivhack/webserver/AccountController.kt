@@ -45,6 +45,34 @@ class AccountController(rpc: NodeRPCConnection) {
             //return "Wallet is loaded with the Money provided !!!! "
     }
 
+    @PostMapping(value = ["/settlement"])
+    private fun settlement(@RequestParam reference: String): Response {
+
+        val (status,message) = try {
+            val tx = proxy.startFlowDynamic(SettlementFlow::class.java, reference)
+            val result = tx.returnValue.getOrThrow();
+            CREATED to "Transaction with id: ${result.id} created"
+        }catch(e :Exception) {
+            BAD_REQUEST to e.message
+        }
+
+        return Response.status(status).entity(message).build();
+    }
+
+    @PostMapping(value = ["/transfer"])
+    private fun transfer(@RequestParam reference: String): Response {
+
+        val (status,message) = try {
+            val tx = proxy.startFlowDynamic(TransferFlow::class.java, reference)
+            val result = tx.returnValue.getOrThrow();
+            CREATED to "Transaction with id: ${result.id} created"
+        }catch(e :Exception) {
+            BAD_REQUEST to e.message
+        }
+
+        return Response.status(status).entity(message).build();
+    }
+
     @GetMapping(value = ["/getAccounts"])
     private fun getAccounts(): List<WalletViewModel> {
 
