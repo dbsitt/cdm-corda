@@ -1,28 +1,26 @@
 package com.derivhack.webserver
 
-import com.derivhack.AffirmationFlow
-import com.derivhack.AllocationFlow
-import com.derivhack.ConfirmationFlow
+
 import com.derivhack.ExecutionFlow
-import com.derivhack.webserver.models.AffirmationViewModel
-import com.derivhack.webserver.models.ExecutionViewModel
+
 import com.derivhack.webserver.models.ExecutionViewModel2
-import net.corda.cdmsupport.states.AffirmationState
+
 import net.corda.cdmsupport.states.ExecutionState
 import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.utilities.getOrThrow
-import net.corda.core.utilities.loggerFor
-import org.isda.cdm.Party
+
 import org.isda.cdm.PartyRole
 import org.isda.cdm.metafields.ReferenceWithMetaParty
 import org.slf4j.LoggerFactory
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import java.time.format.DateTimeFormatter
+
 import java.util.*
 import javax.ws.rs.core.Response.Status.BAD_REQUEST
 import javax.ws.rs.core.Response.Status.CREATED
-import javax.ws.rs.core.Response
-import kotlin.collections.HashMap
+import javax.ws.rs.core.Response.Status.OK
+
+
 
 /**
  * Define your API endpoints here.
@@ -39,7 +37,7 @@ class ExecutionControllerExt (rpc: NodeRPCConnection) {
     private val proxy = rpc.proxy
 
     @PostMapping(value = ["/api/execution"])
-    private fun execution(@RequestBody executionJson: String): Response {
+    private fun execution(@RequestBody executionJson: String): ResponseEntity<Any> {
 
         val (status,message) = try {
             val tx = proxy.startFlowDynamic(ExecutionFlow::class.java, executionJson)
@@ -49,20 +47,20 @@ class ExecutionControllerExt (rpc: NodeRPCConnection) {
             BAD_REQUEST to e.message
         }
 
-        return Response.status(status).entity(message).build();
+        return ResponseEntity.status(status.statusCode).body(message)
+        //return Response.status(status).entity(message).build();
     }
 
     @GetMapping(value = ["/api/blocktrades"])
-    private fun executionStates(): Response {
+    private fun executionStates() : ResponseEntity<Any> {
 
         val (status,message) = try {
-
             val allExecutionStatesAndRefs = proxy.vaultQueryBy<ExecutionState>().states
             val states = allExecutionStatesAndRefs.
                     filter { it.state.data.execution().meta.globalKey == it.state.data.execution().meta.externalKey }.
                     map { it.state.data }
 
-            CREATED to states.map {
+            OK to states.map {
                 ExecutionViewModel2(it.linearId.id.toString(), it.participants, it.execution(), it.eventReference, it.workflowStatus,
                         processsExeInfo(it))
             }
@@ -70,7 +68,9 @@ class ExecutionControllerExt (rpc: NodeRPCConnection) {
             BAD_REQUEST to e.message
         }
 
-        return Response.status(status).entity(message).build();
+
+
+        return ResponseEntity.status(status.statusCode).body(message)
     }
 
 

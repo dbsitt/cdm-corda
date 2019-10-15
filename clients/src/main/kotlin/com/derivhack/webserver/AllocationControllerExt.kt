@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.*
 import java.util.*
 import javax.ws.rs.core.Response.Status.BAD_REQUEST
 import javax.ws.rs.core.Response.Status.CREATED
-import javax.ws.rs.core.Response
+import javax.ws.rs.core.Response.Status.OK
+
+import org.springframework.http.ResponseEntity
 
 @CrossOrigin(origins= ["*"])
 @RestController
@@ -26,7 +28,7 @@ class AllocationControllerExt (rpc: NodeRPCConnection)  {
 
     @PostMapping(value = ["/api/allocation"])
     @Throws(java.lang.RuntimeException::class)
-    private fun allocation(@RequestBody allocationJson: String): Response {
+    private fun allocation(@RequestBody allocationJson: String): ResponseEntity<Any> {
 
         val (status,message) = try {
             val tx = proxy.startFlowDynamic(AllocationFlow::class.java, allocationJson)
@@ -37,12 +39,12 @@ class AllocationControllerExt (rpc: NodeRPCConnection)  {
 
         }
 
-        return Response.status(status).entity(message).build();
+        return ResponseEntity.status(status.statusCode).body(message)
 
     }
 
     @GetMapping(value = ["/api/allocations"])
-    private fun executionStates(): Response {
+    private fun executionStates(): ResponseEntity<Any> {
 
         val (status,message) = try {
 
@@ -50,7 +52,7 @@ class AllocationControllerExt (rpc: NodeRPCConnection)  {
             val states = allExecutionStatesAndRefs.
                     filter { it.state.data.execution().meta.globalKey != it.state.data.execution().meta.externalKey }.
                     map { it.state.data }
-            CREATED to states.map {
+            OK to states.map {
                 ExecutionViewModel2(it.linearId.id.toString(), it.participants, it.execution(), it.eventReference, it.workflowStatus,
                         processsAlocInfo(it))
             }
@@ -58,7 +60,7 @@ class AllocationControllerExt (rpc: NodeRPCConnection)  {
             BAD_REQUEST to e.message
         }
 
-        return Response.status(status).entity(message).build();
+        return ResponseEntity.status(status.statusCode).body(message)
     }
 
 
