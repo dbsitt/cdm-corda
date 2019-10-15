@@ -1,7 +1,7 @@
 package com.derivhack.webserver
 
 import com.derivhack.AffirmationFlow
-import com.derivhack.AllocationFlow
+import com.derivhack.RealAllocationFlow
 import com.derivhack.ConfirmationFlow
 import com.derivhack.ExecutionFlow
 import com.derivhack.webserver.models.AffirmationViewModel
@@ -38,7 +38,7 @@ class Controller(rpc: NodeRPCConnection) {
     @Throws(java.lang.RuntimeException::class)
     private fun allocation(@RequestBody allocationJson: String): String {
 
-        val tx = proxy.startFlowDynamic(AllocationFlow::class.java, allocationJson)
+        val tx = proxy.startFlowDynamic(RealAllocationFlow::class.java, allocationJson)
 
         return "Transaction with id: ${tx.id} created"
     }

@@ -30,11 +30,14 @@ abstract class BaseEventTestGJ(val samplesDirectory: String = "jsons") {
     lateinit var node3: TestStartedNode
     lateinit var node4: TestStartedNode
     lateinit var node5: TestStartedNode
+    lateinit var node6: TestStartedNode
+
     lateinit var party1: Party
     lateinit var party2: Party
     lateinit var party3: Party
     lateinit var party4: Party
     lateinit var party5: Party
+    lateinit var party6: Party
 
     @Before
     fun setup() {
@@ -45,11 +48,15 @@ abstract class BaseEventTestGJ(val samplesDirectory: String = "jsons") {
         node3 = mockNetwork.createPartyNode(CordaX500Name(organisation = "Broker2", locality = "New York", country = "US"))
         node4 = mockNetwork.createPartyNode(CordaX500Name(organisation = "Observery", locality = "New York", country = "US"))
         node5 = mockNetwork.createPartyNode(CordaX500Name(organisation = "SettlementAgent", locality = "New York", country = "US"))
+        node6 = mockNetwork.createPartyNode(CordaX500Name(organisation = "CollateralAgent", locality = "New York", country = "US"))
+
         party1 = node1.services.myInfo.legalIdentities.first()
         party2 = node2.services.myInfo.legalIdentities.first()
         party3 = node3.services.myInfo.legalIdentities.first()
         party4 = node4.services.myInfo.legalIdentities.first()
         party5 = node5.services.myInfo.legalIdentities.first()
+        party6 = node6.services.myInfo.legalIdentities.first()
+
     }
 
     @After

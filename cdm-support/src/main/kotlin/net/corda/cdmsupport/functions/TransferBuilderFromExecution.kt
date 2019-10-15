@@ -1,12 +1,8 @@
 package net.corda.cdmsupport.functions
 
-import com.rosetta.model.lib.RosettaModelObject
 import net.corda.cdmsupport.states.ExecutionState
 import org.isda.cdm.*
-import org.isda.cdm.metafields.FieldWithMetaString
 import org.isda.cdm.metafields.MetaFields
-import org.isda.cdm.metafields.ReferenceWithMetaParty
-import org.isda.cdm.rosettakey.SerialisingHashFunction
 import java.math.BigDecimal
 
 class TransferBuilderFromExecution {
@@ -63,7 +59,7 @@ class TransferBuilderFromExecution {
                 .setStatus(TransferStatusEnum.SETTLED)
                 .addCashTransfer(CashTransferComponent.builder()
                         .setAmount(Money.builder().setAmount(execution.settlementTerms.settlementAmount.amount)
-                                .setCurrency(execution.settlementTerms.settlementAmount.currency)
+                                .setCurrency(execution.price.netPrice.currency)
                                 .build())
                         .setPayerReceiver(PayerReceiver.builder()
                                 .setPayerPartyReference(extractParty(state, PartyRoleEnum.CLIENT))
@@ -81,5 +77,13 @@ class TransferBuilderFromExecution {
                         .build())
                 .setSettlementReference(state.execution().settlementTerms.meta.globalKey)
         return transferBuilder.setMeta(MetaFields.builder().setGlobalKey(hashCDM(transferBuilder.build())).build()).build()
+    }
+
+    fun addMoneyAmount(inputMoney: Money, addAmount: BigDecimal): Money {
+        return inputMoney.toBuilder().setAmount(inputMoney.amount.add(addAmount)).build()
+    }
+
+    fun minusMoneyAmount(inputMoney: Money, addAmount: BigDecimal): Money {
+        return inputMoney.toBuilder().setAmount(inputMoney.amount.minus(addAmount)).build()
     }
 }

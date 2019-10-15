@@ -1,0 +1,30 @@
+{
+  "amount" : 1000000,
+  "currency" : {
+    "value" : "USD"
+  }, 
+  "meta" : {
+    "globalKey" : "123"
+  }, 
+   "account" : {
+      "accountName" : {
+        "value" : "Client1_ACT#0"
+      },
+      "accountNumber" : {
+        "value" : "Client1_ACT#0_NQQVRTLFIT4HZ"
+      },
+      "meta" : {
+        "globalKey" : "BRsIov0pBnhQgjuC37YUVLXz5yno3Xkhu7yCZF+3uxY="
+      }
+    },
+    "meta" : {
+      "globalKey" : "GkATYHcJ0uWdD0klwf0/RCreumcOlWEKDvfHzLfNZiA=",
+      "externalKey" : "Client1_ID#0_NH90YY6QYVYHM"
+    },
+    "name" : {
+      "value" : "Client1"
+    },
+    "partyId" : [ {
+      "value" : "Client1_ID#0_NH90YY6QYVYHM"
+    } ]
+}
