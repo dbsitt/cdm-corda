@@ -182,6 +182,25 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         rpcUsers = [[user: "user3", "password": "test", "permissions": ["ALL"]]]
     }
     node {
+        name "O=SettlementAgent,L=London,C=GB"
+        notary = [validating: false]
+        p2pPort 10017
+        rpcSettings {
+            address("localhost:10018")
+            adminAddress("localhost:10059")
+        }
+        webPort 10019
+        cordapps = [
+                "$project.group:cdm-support-contracts-states:$project.version",
+                "$project.group:cdm-support:$project.version",
+                "$project.group:cordapp:$project.version",
+                "$corda_release_group:corda-finance-contracts:$corda_release_version",
+                "$corda_release_group:corda-finance-workflows:$corda_release_version"
+        ]
+        rpcUsers = [[user: "user5", "password": "test", "permissions": ["ALL"]]]
+    }
+
+    node {
         name "O=Observery,L=London,C=GB"
         notary = [validating: false]
         p2pPort 10014
@@ -197,23 +216,6 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
                 "$corda_release_group:corda-finance-workflows:$corda_release_version"
         ]
         rpcUsers = [[user: "user4", "password": "test", "permissions": ["ALL"]]]
-    }
-
-    node {
-        name "O=SettlementAgent,L=London,C=GB"
-        notary = [validating: false]
-        p2pPort 10017
-        rpcSettings {
-            address("localhost:10018")
-            adminAddress("localhost:10059")
-        }
-        cordapps = [
-                "$project.group:cdm-support-contracts-states:$project.version",
-                "$project.group:cdm-support:$project.version",
-                "$project.group:cordapp:$project.version",
-                "$corda_release_group:corda-finance-contracts:$corda_release_version",
-                "$corda_release_group:corda-finance-workflows:$corda_release_version"
-        ]
     }
 
 }

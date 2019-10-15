@@ -82,5 +82,9 @@ task runServerObserver(type: JavaExec, dependsOn: assemble) {
     args '--server.port=10070', '--config.rpc.host=localhost', '--config.rpc.port=10015', '--config.rpc.username=user4', '--config.rpc.password=test', '--config.sshd.port=2225'
 }
 
-
+task runServerSA(type: JavaExec, dependsOn: assemble) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'com.derivhack.webserver.ServerKt'
+    args '--server.port=10080', '--config.rpc.host=localhost', '--config.rpc.port=10018', '--config.rpc.username=user5', '--config.rpc.password=test', '--config.sshd.port=2226'
+}
 
