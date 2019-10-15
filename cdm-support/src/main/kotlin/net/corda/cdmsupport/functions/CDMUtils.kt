@@ -11,6 +11,7 @@ import java.lang.StringBuilder
 import java.util.Random
 
 const val SETTLEMENT_AGENT_STR = "SettlementAgent"
+const val COLLATERAL_AGENT_STR = "CollateralAgent"
 const val CHAR_STR = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 fun generateIdentifier(issuer: ReferenceWithMetaParty, value: String): Identifier {

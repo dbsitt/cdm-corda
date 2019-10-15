@@ -181,6 +181,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         ]
         rpcUsers = [[user: "user3", "password": "test", "permissions": ["ALL"]]]
     }
+
     node {
         name "O=Observery,L=London,C=GB"
         notary = [validating: false]
@@ -200,13 +201,14 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
     }
 
     node {
-        name "O=SettlementAgent,L=London,C=GB"
+        name "O=SettlementAgent,L=New York,C=US"
         notary = [validating: false]
         p2pPort 10017
         rpcSettings {
             address("localhost:10018")
-            adminAddress("localhost:10059")
+            adminAddress("localhost:10058")
         }
+        webPort 10019
         cordapps = [
                 "$project.group:cdm-support-contracts-states:$project.version",
                 "$project.group:cdm-support:$project.version",
@@ -214,6 +216,62 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
                 "$corda_release_group:corda-finance-contracts:$corda_release_version",
                 "$corda_release_group:corda-finance-workflows:$corda_release_version"
         ]
+        rpcUsers = [[user: "user5", "password": "test", "permissions": ["ALL"]]]
+    }
+
+    node {
+        name "O=CollateralAgent,L=New York,C=US"
+        notary = [validating: false]
+        p2pPort 10020
+        rpcSettings {
+            address("localhost:10021")
+            adminAddress("localhost:10061")
+        }
+        webPort 10022
+        cordapps = [
+                "$project.group:cdm-support-contracts-states:$project.version",
+                "$project.group:cdm-support:$project.version",
+                "$project.group:cordapp:$project.version",
+                "$corda_release_group:corda-finance-contracts:$corda_release_version",
+                "$corda_release_group:corda-finance-workflows:$corda_release_version"
+        ]
+        rpcUsers = [[user: "user4", "password": "test", "permissions": ["ALL"]]]
+    }
+
+    node {
+        name "O=Client2,L=New York,C=US"
+        p2pPort 10023
+        rpcSettings {
+            address("localhost:10024")
+            adminAddress("localhost:10064")
+        }
+        webPort 10025
+        cordapps = [
+                "$project.group:cdm-support-contracts-states:$project.version",
+                "$project.group:cdm-support:$project.version",
+                "$project.group:cordapp:$project.version",
+                "$corda_release_group:corda-finance-contracts:$corda_release_version",
+                "$corda_release_group:corda-finance-workflows:$corda_release_version"
+        ]
+        rpcUsers = [[user: "user6", "password": "test", "permissions": ["ALL"]]]
+    }
+
+    node {
+        name "O=Client3,L=New York,C=US"
+        p2pPort 10026
+        rpcSettings {
+            address("localhost:10027")
+            adminAddress("localhost:10067")
+        }
+        webPort 10028
+        cordapps = [
+                "$project.group:cdm-support-contracts-states:$project.version",
+                "$project.group:cdm-support:$project.version",
+                "$project.group:cordapp:$project.version",
+                "$corda_release_group:corda-finance-contracts:$corda_release_version",
+                "$corda_release_group:corda-finance-workflows:$corda_release_version"
+        ]
+        rpcUsers = [[user: "user7", "password": "test", "permissions": ["ALL"]]]
     }
 
 }

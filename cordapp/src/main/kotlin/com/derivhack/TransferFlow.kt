@@ -4,15 +4,21 @@ import co.paralleluniverse.fibers.Suspendable
 import com.derivhack.Constant.Factory.DEFAULT_DURATION
 import net.corda.cdmsupport.CDMEvent
 import net.corda.cdmsupport.eventparsing.serializeCdmObjectIntoJson
+import net.corda.cdmsupport.functions.AgentHolder
+import net.corda.cdmsupport.functions.COLLATERAL_AGENT_STR
+import net.corda.cdmsupport.functions.SETTLEMENT_AGENT_STR
 import net.corda.cdmsupport.functions.TransferBuilderFromExecution
 import net.corda.cdmsupport.states.ExecutionState
-import net.corda.cdmsupport.states.WalletState
 import net.corda.cdmsupport.states.TransferState
+import net.corda.cdmsupport.states.WalletState
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
 import net.corda.core.node.services.queryBy
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
+import org.isda.cdm.PartyRole
+import org.isda.cdm.PartyRoleEnum
+import org.isda.cdm.metafields.ReferenceWithMetaParty
 
 @InitiatingFlow
 @StartableByRPC
@@ -29,7 +35,6 @@ class TransferFlow(val executionRef: String) : FlowLogic<SignedTransaction>() {
 
     @Suspendable
     override fun call(): SignedTransaction {
-
         val moneyStates = serviceHub.vaultService.queryBy<WalletState>().states
         println("before transfer moneyStates ##############################")
         println(moneyStates)
@@ -37,20 +42,33 @@ class TransferFlow(val executionRef: String) : FlowLogic<SignedTransaction>() {
 
         val statesAndRef = serviceHub.vaultService.queryBy<ExecutionState>().states
         val stateAndRef = statesAndRef.first { it.state.data.execution().meta.globalKey == executionRef }
+
         val moneyStateAndRef = serviceHub.vaultService.queryBy<WalletState>().states
 
         val state = stateAndRef.state.data
 
         val notary = serviceHub.networkMapCache.notaryIdentities.first()
+        val cordaCollateralAgent = serviceHub.identityService.partiesFromName(COLLATERAL_AGENT_STR, true).single()
+        val collateralParticipants = mutableListOf(cordaCollateralAgent)
+        collateralParticipants.addAll(state.participants
+                .map { net.corda.core.identity.Party(it.nameOrNull(), it.owningKey) })
         val participants = state.participants.map { net.corda.core.identity.Party(it.nameOrNull(), it.owningKey) }
+
+        //println("transfer participants ##############################")
+        //println(participants)
+        //println("transfer participants ##############################")
 
         val builder = TransactionBuilder(notary)
         val transferEvent = TransferBuilderFromExecution().transferBuilder(state)
 
-        val executionState = state.copy(workflowStatus = "TRANSFERRED")
+        val collateralAgentRef = ReferenceWithMetaParty.builder().setGlobalReference(AgentHolder.collateralAgentParty.meta.globalKey).build()
+        val executionBuilder = state.execution().toBuilder()
+                .addPartyRef(AgentHolder.collateralAgentParty)
+                .addPartyRole(PartyRole.builder().setRole(PartyRoleEnum.SECURED_PARTY).setPartyReference(collateralAgentRef).build())
+
+        val executionState = state.copy(workflowStatus = "TRANSFERRED", participants = collateralParticipants,  executionJson = serializeCdmObjectIntoJson(executionBuilder.build()))
 
         builder.addInputState(stateAndRef)
-        builder.addCommand(CDMEvent.Commands.Transfer(), participants.map { it.owningKey })
         builder.addOutputState(executionState)
 
         for (transfer in transferEvent.primitive.transfer) {
@@ -99,12 +117,13 @@ class TransferFlow(val executionRef: String) : FlowLogic<SignedTransaction>() {
             builder.addOutputState(securityTransfereeNewMoneyState)
         }
 
-        builder.setTimeWindow(serviceHub.clock.instant(), DEFAULT_DURATION)
+        builder.addCommand(CDMEvent.Commands.Transfer(), collateralParticipants.map { it.owningKey })
+        builder.setTimeWindow(serviceHub.clock.instant(), Constant.DEFAULT_DURATION)
         builder.verify(serviceHub)
 
         val signedTransaction = serviceHub.signInitialTransaction(builder)
 
-        val session = participants.minus(ourIdentity).map { initiateFlow(it) }
+        val session = collateralParticipants.minus(ourIdentity).map { initiateFlow(it) }
 
         val fullySignedTx = subFlow(CollectSignaturesFlow(signedTransaction, session, CollectSignaturesFlow.tracker()))
 
