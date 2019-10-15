@@ -73,6 +73,7 @@ class CDMEvent : Contract {
         if(tx.outputStates.size > 1){
             "Input states must be defined when multiple output states were defined in transaction." using tx.inputStates?.isNotEmpty()
 
+            /*
             var quantityAmtBefore = BigDecimal.ZERO;
             var allocatedTotals = BigDecimal.ZERO
 
@@ -89,6 +90,8 @@ class CDMEvent : Contract {
             logger.debug("------ alTotal:$allocatedTotals")
 
             "Ensure sum of allocation is equal to block trade." using (quantityAmtBefore.compareTo(allocatedTotals).equals(0))
+
+             */
         }
 
     }
