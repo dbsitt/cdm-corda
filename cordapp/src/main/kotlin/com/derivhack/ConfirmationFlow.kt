@@ -6,7 +6,6 @@ import net.corda.cdmsupport.eventparsing.serializeCdmObjectIntoJson
 import net.corda.cdmsupport.functions.AgentHolder.Factory.settlementAgentParty
 import net.corda.cdmsupport.functions.SETTLEMENT_AGENT_STR
 import net.corda.cdmsupport.functions.confirmationBuilderFromExecution
-import net.corda.cdmsupport.functions.hashCDM
 import net.corda.cdmsupport.states.ConfirmationState
 import net.corda.cdmsupport.states.ExecutionState
 import net.corda.cdmsupport.validators.CdmValidators
@@ -16,10 +15,8 @@ import net.corda.core.node.services.queryBy
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import org.isda.cdm.ConfirmationStatusEnum
-import org.isda.cdm.Party
 import org.isda.cdm.PartyRole
 import org.isda.cdm.PartyRoleEnum
-import org.isda.cdm.metafields.MetaFields
 import org.isda.cdm.metafields.ReferenceWithMetaParty
 
 @InitiatingFlow
@@ -50,6 +47,7 @@ class ConfirmationFlow(val executionRef: String) : FlowLogic<SignedTransaction>(
                 .map { net.corda.core.identity.Party(it.nameOrNull(), it.owningKey) })
 
         val builder = TransactionBuilder(notary)
+        builder.setTimeWindow(serviceHub.clock.instant(), Constant.DEFAULT_DURATION)
         val confirmation = confirmationBuilderFromExecution(state)
         CdmValidators().validateConfirmation(confirmation)
         val confirmationState = ConfirmationState(serializeCdmObjectIntoJson(confirmation), participants)

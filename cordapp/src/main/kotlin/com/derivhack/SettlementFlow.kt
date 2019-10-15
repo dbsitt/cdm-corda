@@ -39,6 +39,7 @@ class SettlementFlow(val executionRef: String) : FlowLogic<SignedTransaction>() 
         builder.addCommand(CDMEvent.Commands.Settlement(), participants.map { it.owningKey })
         builder.addOutputState(executionState)
 
+        builder.setTimeWindow(serviceHub.clock.instant(), Constant.DEFAULT_DURATION)
         builder.verify(serviceHub)
 
         val signedTransaction = serviceHub.signInitialTransaction(builder)

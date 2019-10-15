@@ -29,7 +29,7 @@ fun AllocationPrimitive.validateLineageAndTotals(serviceHub: ServiceHub, lineage
 
         val matchingExecutionsQuantity = matchingExecutions.first().state.data.execution().quantity.amount
 
-        if (this.before.execution.quantity.amount == allocatedTotals && matchingExecutionsQuantity == allocatedTotals) {
+        if (this.before.execution.quantity.amount.compareTo(allocatedTotals) == 0 && matchingExecutionsQuantity.compareTo(allocatedTotals) == 0) {
             return true
         }
 

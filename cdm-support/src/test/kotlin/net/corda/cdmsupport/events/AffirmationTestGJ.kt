@@ -1,16 +1,13 @@
 package net.corda.cdmsupport.events
 
 import com.derivhack.AffirmationFlow
-import com.derivhack.AllocationFlow
+import com.derivhack.RealAllocationFlow
 import com.derivhack.ExecutionFlow
 import net.corda.cdmsupport.CDMEvent
 import net.corda.cdmsupport.eventparsing.parseEventFromJson
-import net.corda.cdmsupport.eventparsing.readEventFromJson
 import net.corda.cdmsupport.eventparsing.readTextFromFile
 import net.corda.cdmsupport.states.AffirmationState
 import net.corda.cdmsupport.states.ExecutionState
-import net.corda.cdmsupport.testflow.TestAffirmationFlow
-import net.corda.cdmsupport.testflow.TestFlowInitiating
 import net.corda.cdmsupport.validators.CdmValidators
 import net.corda.core.utilities.getOrThrow
 import net.corda.testing.node.internal.startFlow
@@ -32,7 +29,7 @@ class AffirmationTestGJ : BaseEventTestGJ() {
         //----------------allocation
         //val allocationEvent = readEventFromJson("/${samplesDirectory}/UC2_allocation_execution_AT1.json")
         val jsonText2 = readTextFromFile("/${samplesDirectory}/UC2_allocation_execution_AT1_GJ.json")
-        val future2 = node2.services.startFlow(AllocationFlow(jsonText2)).resultFuture
+        val future2 = node2.services.startFlow(RealAllocationFlow(jsonText2)).resultFuture
         future2.getOrThrow().toLedgerTransaction(node2.services)
         //checkTheBasicFabricOfTheTransaction(tx2, 1, 3, 0, 3)
 

@@ -3,18 +3,11 @@ package com.derivhack
 import co.paralleluniverse.fibers.Suspendable
 import net.corda.cdmsupport.CDMEvent
 import net.corda.cdmsupport.eventparsing.parseEventFromJson
-import net.corda.cdmsupport.eventparsing.serializeCdmObjectIntoJson
 import net.corda.cdmsupport.extensions.mapPartyFromEventToCordaX500ForConfirmation
-import net.corda.cdmsupport.extensions.mapPartyToCordaX500ForConfirmation
-import net.corda.cdmsupport.extensions.mapPartyToCordaX500ForExecution
-import net.corda.cdmsupport.functions.confirmationBuilderFromExecution
 import net.corda.cdmsupport.states.ConfirmationState
-import net.corda.cdmsupport.states.ExecutionState
 import net.corda.cdmsupport.vaultquerying.DefaultCdmVaultQuery
-import net.corda.core.contracts.Requirements.using
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
-import net.corda.core.node.services.queryBy
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import org.isda.cdm.ConfirmationStatusEnum
@@ -65,7 +58,7 @@ class ConfirmationFlowGJ(val confirmationJson: String) : FlowLogic<SignedTransac
         builder.addCommand(CDMEvent.Commands.Confirmation(), participants.map { it.owningKey })
         builder.addOutputState(confirmationState)
         builder.addOutputState(executionState)
-
+        builder.setTimeWindow(serviceHub.clock.instant(), Constant.DEFAULT_DURATION)
         builder.verify(serviceHub)
 
         val signedTransaction = serviceHub.signInitialTransaction(builder)
