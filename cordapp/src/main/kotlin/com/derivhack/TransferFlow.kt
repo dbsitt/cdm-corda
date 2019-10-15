@@ -1,6 +1,7 @@
 package com.derivhack
 
 import co.paralleluniverse.fibers.Suspendable
+import com.derivhack.Constant.Factory.DEFAULT_DURATION
 import net.corda.cdmsupport.CDMEvent
 import net.corda.cdmsupport.eventparsing.serializeCdmObjectIntoJson
 import net.corda.cdmsupport.functions.TransferBuilderFromExecution
@@ -12,6 +13,7 @@ import net.corda.core.flows.*
 import net.corda.core.node.services.queryBy
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
+import net.corda.core.utilities.seconds
 
 @InitiatingFlow
 @StartableByRPC
@@ -98,6 +100,7 @@ class TransferFlow(val executionRef: String) : FlowLogic<SignedTransaction>() {
             builder.addOutputState(securityTransfereeNewMoneyState)
         }
 
+        builder.setTimeWindow(serviceHub.clock.instant(), DEFAULT_DURATION)
         builder.verify(serviceHub)
 
         val signedTransaction = serviceHub.signInitialTransaction(builder)

@@ -47,6 +47,7 @@ class ConfirmationFlow(val executionRef: String) : FlowLogic<SignedTransaction>(
                 .map { net.corda.core.identity.Party(it.nameOrNull(), it.owningKey) })
 
         val builder = TransactionBuilder(notary)
+        builder.setTimeWindow(serviceHub.clock.instant(), Constant.DEFAULT_DURATION)
         val confirmation = confirmationBuilderFromExecution(state)
         CdmValidators().validateConfirmation(confirmation)
         val confirmationState = ConfirmationState(serializeCdmObjectIntoJson(confirmation), participants)

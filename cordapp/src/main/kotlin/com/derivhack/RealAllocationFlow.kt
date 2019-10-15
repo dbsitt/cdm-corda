@@ -39,6 +39,8 @@ class RealAllocationFlow(val executionRef: String) : FlowLogic<SignedTransaction
         val allocation = allocationBuilderFromExecution(BigDecimal.valueOf(320000), BigDecimal.valueOf(480000), state)
         logger.info(serializeCdmObjectIntoJson(allocation))
         val cdmTransactionBuilder = CdmTransactionBuilder(notary, allocation, DefaultCdmVaultQuery(serviceHub))
+
+        cdmTransactionBuilder.setTimeWindow(serviceHub.clock.instant(), Constant.DEFAULT_DURATION)
         cdmTransactionBuilder.verify(serviceHub)
 //        cdmTransactionBuilder.setTimeWindow(Timewindow)
         val signedByMe = serviceHub.signInitialTransaction(cdmTransactionBuilder)

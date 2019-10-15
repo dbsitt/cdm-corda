@@ -41,6 +41,7 @@ class AllocationFlow(val allocationJson: String) : FlowLogic<SignedTransaction>(
         //create builder
         val builder = CdmTransactionBuilder(notary,evt,query)
         builder.outputStates().forEach { System.out.println("OutputState = "+it) }
+        builder.setTimeWindow(serviceHub.clock.instant(), Constant.DEFAULT_DURATION)
         //verify service hub
         builder.verify(serviceHub)
 
