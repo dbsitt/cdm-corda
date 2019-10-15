@@ -108,8 +108,8 @@ class AccountController(rpc: NodeRPCConnection) {
         return walletStateData.map {
             logger.info("!!!!! getting the details for ${it}...")
             logger.info(it.party().toString())
-            WalletViewModel(it.walletReference, it.party().account.accountNumber.toString(),it.party().account.accountName.toString(),
-                    it.money().currency.toString(),  it.money().amount.longValueExact())
+            WalletViewModel(it.walletReference, it.party().account.accountNumber.value,it.party().account.accountName.value,
+                    it.money().currency.value,  it.money().amount.toLong())
         }
     }
 
