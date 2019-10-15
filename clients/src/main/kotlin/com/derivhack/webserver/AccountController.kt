@@ -31,7 +31,7 @@ class AccountController(rpc: NodeRPCConnection) {
 
     private val proxy = rpc.proxy
 
-    @PostMapping(value = ["/loadWallet"])
+    @PostMapping(value = ["/api/loadWallet"])
     private fun execution(@RequestBody moneyJson: String): Response  {
         val (status,message) = try {
             val tx = proxy.startFlowDynamic(WalletFlow::class.java, moneyJson)
@@ -45,7 +45,7 @@ class AccountController(rpc: NodeRPCConnection) {
             //return "Wallet is loaded with the Money provided !!!! "
     }
 
-    @PostMapping(value = ["/settlement"])
+    @PostMapping(value = ["/api/settlement"])
     private fun settlement(@RequestParam reference: String): Response {
 
         val (status,message) = try {
@@ -59,7 +59,7 @@ class AccountController(rpc: NodeRPCConnection) {
         return Response.status(status).entity(message).build();
     }
 
-    @PostMapping(value = ["/transfer"])
+    @PostMapping(value = ["/api/transfer"])
     private fun transfer(@RequestParam reference: String): Response {
 
         val (status,message) = try {
@@ -73,7 +73,32 @@ class AccountController(rpc: NodeRPCConnection) {
         return Response.status(status).entity(message).build();
     }
 
-    @GetMapping(value = ["/getAccounts"])
+    @PostMapping(value = ["/api/confirmation"])
+    private fun confirmation(@RequestParam executionRef: String): Response {
+
+        val (status,message) = try {
+            val tx = proxy.startFlowDynamic(ConfirmationFlow::class.java, executionRef)
+            val result = tx.returnValue.getOrThrow();
+            CREATED to "Confirmation with the id: ${result.id}"
+        }catch(e :Exception) {
+            BAD_REQUEST to e.message
+        }
+        return Response.status(status).entity(message).build();
+    }
+
+    @PostMapping(value = ["/api/affirmation"])
+    private fun affirmation(@RequestParam executionRef: String): Response {
+        val (status,message) = try {
+            val tx = proxy.startFlowDynamic(AffirmationFlow::class.java, executionRef)
+            val result = tx.returnValue.getOrThrow();
+            CREATED to "Affirmed with the id: ${result.id}"
+        }catch(e :Exception) {
+            BAD_REQUEST to e.message
+        }
+        return Response.status(status).entity(message).build();
+    }
+
+    @GetMapping(value = ["/api/getAccounts"])
     private fun getAccounts(): List<WalletViewModel> {
 
         logger.info("!!!!! Inside the getAccounts to get the account details...")
