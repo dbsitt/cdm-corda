@@ -13,6 +13,7 @@ import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.AbstractParty
 import net.corda.core.identity.Party
 import net.corda.core.transactions.TransactionBuilder
+import net.corda.core.utilities.loggerFor
 import org.isda.cdm.*
 
 
@@ -32,10 +33,22 @@ class CdmTransactionBuilder(notary: Party? = null,
     @Throws(RuntimeException::class)
     private fun processAllocationPrimitive(allocationPrimitive: AllocationPrimitive) {
 
+        val logger = loggerFor<CdmTransactionBuilder>()
+
         val executionLineage = event.lineage.executionReference[0].globalReference
 
         if (allocationPrimitive.validateLineageAndTotals(serviceHub!!, executionLineage)) {
             val inputState = cdmVaultQuery.getCdmExecutionStateByMetaGlobalKey(executionLineage)
+
+            val closedState = inputState.state?.data?.execution()?.closedState?.state?.name?.orEmpty()
+
+            logger.debug("INPUT_STATE.closedState: $closedState");
+
+            if("ALLOCATED" == closedState){
+
+                throw Exception("Block Trade is already allocated")
+            }
+
             addInputState(inputState)
 
             val outputBeforeState = createExecutionState(allocationPrimitive.after.originalTrade.execution)
@@ -55,10 +68,22 @@ class CdmTransactionBuilder(notary: Party? = null,
     @Throws(RuntimeException::class)
     private fun processAllocationPrimitiveNew(allocationPrimitive: AllocationPrimitive) {
 
+        val logger = loggerFor<CdmTransactionBuilder>()
+
         val executionLineage = event.lineage.executionReference[0].globalReference
 
         if (allocationPrimitive.validateLineageAndTotals(serviceHub!!, executionLineage)) {
             val inputState = cdmVaultQuery.getCdmExecutionStateByMetaGlobalKey(executionLineage)
+
+            val closedState = inputState.state?.data?.execution()?.closedState?.state?.name?.orEmpty()
+
+            logger.debug("INPUT_STATE.closedState: $closedState");
+
+            if("ALLOCATED" == closedState){
+
+                throw Exception("Block Trade is already allocated")
+            }
+
             addInputState(inputState)
 
             val outputBeforeState = createExecutionState(allocationPrimitive.after.originalTrade.execution)

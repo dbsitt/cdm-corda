@@ -70,6 +70,7 @@ class AllocationFlowInitiated(val flowSession: FlowSession) : FlowLogic<SignedTr
         val signedTransactionFlow = object : SignTransactionFlow(flowSession) {
             override fun checkTransaction(stx: SignedTransaction) = requireThat {
 
+
                 "" using ("test" is String)
             }
         }
