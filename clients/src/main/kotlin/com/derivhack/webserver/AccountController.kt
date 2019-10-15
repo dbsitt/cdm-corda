@@ -50,10 +50,10 @@ class AccountController(rpc: NodeRPCConnection) {
     }
 
     @PostMapping(value = ["/api/settlement"])
-    private fun settlement(@RequestParam reference: String): ResponseEntity<Any> {
+    private fun settlement(@RequestBody request: executionRequest): ResponseEntity<Any> {
 
         val (status,message) = try {
-            val tx = proxy.startFlowDynamic(SettlementFlow::class.java, reference)
+            val tx = proxy.startFlowDynamic(SettlementFlow::class.java, request.executionRef)
             val result = tx.returnValue.getOrThrow();
             CREATED to "Transaction with id: ${result.id} created"
         }catch(e :Exception) {
@@ -64,10 +64,10 @@ class AccountController(rpc: NodeRPCConnection) {
     }
 
     @PostMapping(value = ["/api/transfer"])
-    private fun transfer(@RequestParam reference: String): ResponseEntity<Any> {
+    private fun transfer(@RequestBody request: executionRequest): ResponseEntity<Any> {
 
         val (status,message) = try {
-            val tx = proxy.startFlowDynamic(TransferFlow::class.java, reference)
+            val tx = proxy.startFlowDynamic(TransferFlow::class.java, request.executionRef)
             val result = tx.returnValue.getOrThrow();
             CREATED to "Transaction with id: ${result.id} created"
         }catch(e :Exception) {
@@ -78,10 +78,10 @@ class AccountController(rpc: NodeRPCConnection) {
     }
 
     @PostMapping(value = ["/api/confirmation"])
-    private fun confirmation(@RequestParam executionRef: String): ResponseEntity<Any> {
+    private fun confirmation(@RequestBody request: executionRequest): ResponseEntity<Any> {
 
         val (status,message) = try {
-            val tx = proxy.startFlowDynamic(ConfirmationFlow::class.java, executionRef)
+            val tx = proxy.startFlowDynamic(ConfirmationFlow::class.java, request.executionRef)
             val result = tx.returnValue.getOrThrow();
 
             CREATED to "Confirmation with the id: ${result.id}"
