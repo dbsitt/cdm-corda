@@ -1,9 +1,6 @@
 package com.derivhack.webserver
 
-import com.derivhack.AffirmationFlow
-import com.derivhack.AllocationFlow
-import com.derivhack.ConfirmationFlow
-import com.derivhack.ExecutionFlow
+import com.derivhack.*
 import com.derivhack.webserver.models.AffirmationViewModel
 import com.derivhack.webserver.models.ExecutionViewModel
 import com.derivhack.webserver.models.TransferViewModel
@@ -30,6 +27,14 @@ class AccountController(rpc: NodeRPCConnection) {
 
     private val proxy = rpc.proxy
 
+    @PostMapping(value = ["/loadWallet"])
+    private fun execution(@RequestBody executionJson: String): String {
+
+        val tx = proxy.startFlowDynamic(WalletFlow::class.java, executionJson)
+
+        return "Wallet is loaded with the Money provided !!!! "
+    }
+
     @GetMapping(value = ["/getAccounts"])
     private fun getAccounts(): List<WalletViewModel> {
 
@@ -40,8 +45,11 @@ class AccountController(rpc: NodeRPCConnection) {
         return walletStateData.map {
             logger.info("!!!!! getting the details for ${it}...")
             logger.info(it.party().toString())
-            WalletViewModel(it.walletReference, it.party().account.accountNumber.toString(),it.party().account.accountName.toString())
+            WalletViewModel(it.walletReference, it.party().account.accountNumber.toString(),it.party().account.accountName.toString(),
+                    it.money().currency.toString(),  it.money().amount.longValueExact())
         }
     }
+
+
 
 }
