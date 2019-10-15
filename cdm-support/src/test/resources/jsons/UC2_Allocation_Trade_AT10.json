@@ -1,0 +1,624 @@
+{
+  "action" : "NEW",
+  "eventDate" : {
+    "day" : 17,
+    "month" : 10,
+    "year" : 2019
+  },
+  "eventEffect" : {
+    "effectedExecution" : [ {
+      "globalReference" : "rLnN7slT6/9RRyJsWh2fMOx8SsGuK1kyPy/KAKc4NH4="
+    }, {
+      "globalReference" : "46FBGuPIPQU0bbQKEP4D3PWW8eejaZMZ0zuXsXX311M="
+    } ]
+  },
+  "eventIdentifier" : [ {
+    "assignedIdentifier" : [ {
+      "identifier" : {
+        "value" : "XG19MZBXA1RTN"
+      },
+      "version" : 1
+    } ],
+    "issuerReference" : {
+      "globalReference" : "NKbmTRySI+MwEy+qqV0+romOrBu0GsWdqogMXGtzSVM="
+    },
+    "meta" : {
+      "globalKey" : "bdYOft0pvqZ1p7MmMvB+3OaSA9e1YkMM3JsvXfLNc7Y="
+    }
+  } ],
+  "lineage" : {
+    "eventReference" : [ {
+      "globalReference" : "ZmhIpWC4CnMhtNpJ6rhumM19343X2kzz4MFqOyEJ9bs="
+    } ],
+    "executionReference" : [ {
+      "globalReference" : "4mMqOMRqxjlNQu/r1n3eDFbIfa0JvFxaJXEKYspC/9U="
+    } ]
+  },
+  "meta" : {
+    "globalKey" : "W9gm3pw6ubKQfD+36CqOUoXSbfkwUbxFapgHHZxTPbY="
+  },
+  "party" : [ {
+    "account" : {
+      "accountName" : {
+        "value" : "Client2_ACT#1"
+      },
+      "accountNumber" : {
+        "value" : "Client2_ACT#1_0RPUB0XZEXQAC"
+      },
+      "meta" : {
+        "globalKey" : "B4fOrMbcxmVrMW43mkm7fwQGHuOs8/1NQ4XY/g2aw+g="
+      }
+    },
+    "meta" : {
+      "globalKey" : "FyO8SCN/q+p/isum7aUiJDPCUXYakcs7f9iFwDOcNYY=",
+      "externalKey" : "Client2_ID#1_PCEYOUHLMFDVH"
+    },
+    "name" : {
+      "value" : "Client2"
+    },
+    "partyId" : [ {
+      "value" : "Client2_ID#1_PCEYOUHLMFDVH"
+    } ]
+  }, {
+    "account" : {
+      "accountName" : {
+        "value" : "Broker2_ACT#0"
+      },
+      "accountNumber" : {
+        "value" : "Broker2_ACT#0_TTJE0NQUTRIFB"
+      },
+      "meta" : {
+        "globalKey" : "GyBU5vHoyL4BM7ctxcCsNp3VXMlELtkERhGao8KbExY="
+      }
+    },
+    "meta" : {
+      "globalKey" : "NKbmTRySI+MwEy+qqV0+romOrBu0GsWdqogMXGtzSVM=",
+      "externalKey" : "Broker2_ID#0_AN93QUDTMRPAB"
+    },
+    "name" : {
+      "value" : "Broker2"
+    },
+    "partyId" : [ {
+      "value" : "Broker2_ID#0_AN93QUDTMRPAB"
+    } ]
+  }, {
+    "account" : {
+      "accountName" : {
+        "value" : "Broker1_ACT#0"
+      },
+      "accountNumber" : {
+        "value" : "Broker1_ACT#0_WWVA12ZJ21IW2"
+      },
+      "meta" : {
+        "globalKey" : "xvRB/LCSyPGS736BhYfTkW1AH56H1bzHHXbqZJepZ0w="
+      }
+    },
+    "meta" : {
+      "globalKey" : "3vqQOOnXah+v+Cwkdh/hSyDP7iD6lLGqRDW/500GvjU=",
+      "externalKey" : "Broker1_ID#0_4NGIDYZJ4ZBDX"
+    },
+    "name" : {
+      "value" : "Broker1"
+    },
+    "partyId" : [ {
+      "value" : "Broker1_ID#0_4NGIDYZJ4ZBDX"
+    } ]
+  }, {
+    "account" : {
+      "accountName" : {
+        "value" : "Client2_ACT#2"
+      },
+      "accountNumber" : {
+        "value" : "Client2_ACT#2_RQKCISEUOQWZJ"
+      },
+      "meta" : {
+        "globalKey" : "Qda8Y3+NfO4qYMAv6YwU1nR0W8aYFUpNdNr8wo2xTas="
+      }
+    },
+    "meta" : {
+      "globalKey" : "qLnjlUW673zLfTmlJ7cCnztFStz00ZP1q3yDHFQyD70=",
+      "externalKey" : "Client2_ID#2_W2YVROJQYNGYP"
+    },
+    "name" : {
+      "value" : "Client2"
+    },
+    "partyId" : [ {
+      "value" : "Client2_ID#2_W2YVROJQYNGYP"
+    } ]
+  }, {
+    "account" : {
+      "accountName" : {
+        "value" : "Client2_ACT#0"
+      },
+      "accountNumber" : {
+        "value" : "Client2_ACT#0_CZKSADYPP2K4J"
+      },
+      "meta" : {
+        "globalKey" : "BrMBIMKTK3BGhFqG3Y09Iz7wmpca10yFgwVcYl3eNNQ="
+      }
+    },
+    "meta" : {
+      "globalKey" : "KXEpVIuKyzAZkCm7nY/xjzgHC9X+h3O9RZb6Ejik9l4=",
+      "externalKey" : "Client2_ID#0_ZRHKMHVTQ0MRO"
+    },
+    "name" : {
+      "value" : "Client2"
+    },
+    "partyId" : [ {
+      "value" : "Client2_ID#0_ZRHKMHVTQ0MRO"
+    } ]
+  } ],
+  "primitive" : {
+    "allocation" : [ {
+      "after" : {
+        "allocatedTrade" : [ {
+          "execution" : {
+            "executionType" : "ELECTRONIC",
+            "executionVenue" : {
+              "name" : {
+                "value" : "Execution Venue"
+              }
+            },
+            "identifier" : [ {
+              "assignedIdentifier" : [ {
+                "identifier" : {
+                  "value" : "HBC6WK6U3U3A1"
+                },
+                "version" : 1
+              } ],
+              "issuerReference" : {
+                "globalReference" : "NKbmTRySI+MwEy+qqV0+romOrBu0GsWdqogMXGtzSVM="
+              },
+              "meta" : {
+                "globalKey" : "090G4Jy4HnWqJnB9F5UgzCqmPwoN3E58JpYSGPNMk9k="
+              }
+            } ],
+            "meta" : {
+              "globalKey" : "rLnN7slT6/9RRyJsWh2fMOx8SsGuK1kyPy/KAKc4NH4="
+            },
+            "partyRole" : [ {
+              "partyReference" : {
+                "globalReference" : "qLnjlUW673zLfTmlJ7cCnztFStz00ZP1q3yDHFQyD70="
+              },
+              "role" : "CLIENT"
+            }, {
+              "partyReference" : {
+                "globalReference" : "NKbmTRySI+MwEy+qqV0+romOrBu0GsWdqogMXGtzSVM="
+              },
+              "role" : "EXECUTING_ENTITY"
+            }, {
+              "partyReference" : {
+                "globalReference" : "3vqQOOnXah+v+Cwkdh/hSyDP7iD6lLGqRDW/500GvjU="
+              },
+              "role" : "COUNTERPARTY"
+            }, {
+              "partyReference" : {
+                "globalReference" : "qLnjlUW673zLfTmlJ7cCnztFStz00ZP1q3yDHFQyD70="
+              },
+              "role" : "SELLER"
+            }, {
+              "partyReference" : {
+                "globalReference" : "NKbmTRySI+MwEy+qqV0+romOrBu0GsWdqogMXGtzSVM="
+              },
+              "role" : "SELLER"
+            }, {
+              "partyReference" : {
+                "globalReference" : "3vqQOOnXah+v+Cwkdh/hSyDP7iD6lLGqRDW/500GvjU="
+              },
+              "role" : "BUYER"
+            } ],
+            "price" : {
+              "accruedInterest" : 1.3700,
+              "grossPrice" : {
+                "amount" : 96.9700,
+                "currency" : {
+                  "value" : "USD"
+                },
+                "priceExpression" : "ABSOLUTE_TERMS"
+              },
+              "netPrice" : {
+                "amount" : 98.3400,
+                "currency" : {
+                  "value" : "USD"
+                },
+                "priceExpression" : "ABSOLUTE_TERMS"
+              }
+            },
+            "product" : {
+              "security" : {
+                "bond" : {
+                  "productIdentifier" : {
+                    "identifier" : [ {
+                      "value" : "DH0371475458"
+                    } ],
+                    "source" : "CUSIP"
+                  }
+                }
+              }
+            },
+            "quantity" : {
+              "amount" : 320000.00
+            },
+            "settlementTerms" : {
+              "settlementAmount" : {
+                "amount" : 314688.00,
+                "currency" : {
+                  "value" : "USD"
+                }
+              },
+              "settlementDate" : {
+                "adjustableDate" : {
+                  "unadjustedDate" : {
+                    "day" : 18,
+                    "month" : 10,
+                    "year" : 2019
+                  }
+                }
+              }
+            },
+            "tradeDate" : {
+              "value" : {
+                "day" : 17,
+                "month" : 10,
+                "year" : 2019
+              }
+            }
+          }
+        }, {
+          "execution" : {
+            "executionType" : "ELECTRONIC",
+            "executionVenue" : {
+              "name" : {
+                "value" : "Execution Venue"
+              }
+            },
+            "identifier" : [ {
+              "assignedIdentifier" : [ {
+                "identifier" : {
+                  "value" : "KSHEDNMVDN5UQ"
+                },
+                "version" : 1
+              } ],
+              "issuerReference" : {
+                "globalReference" : "NKbmTRySI+MwEy+qqV0+romOrBu0GsWdqogMXGtzSVM="
+              },
+              "meta" : {
+                "globalKey" : "jGP4Znq4pcMiUobVuxBUZXK7RQpcgCzDk2yFp+3kXpw="
+              }
+            } ],
+            "meta" : {
+              "globalKey" : "46FBGuPIPQU0bbQKEP4D3PWW8eejaZMZ0zuXsXX311M="
+            },
+            "partyRole" : [ {
+              "partyReference" : {
+                "globalReference" : "KXEpVIuKyzAZkCm7nY/xjzgHC9X+h3O9RZb6Ejik9l4="
+              },
+              "role" : "CLIENT"
+            }, {
+              "partyReference" : {
+                "globalReference" : "NKbmTRySI+MwEy+qqV0+romOrBu0GsWdqogMXGtzSVM="
+              },
+              "role" : "EXECUTING_ENTITY"
+            }, {
+              "partyReference" : {
+                "globalReference" : "3vqQOOnXah+v+Cwkdh/hSyDP7iD6lLGqRDW/500GvjU="
+              },
+              "role" : "COUNTERPARTY"
+            }, {
+              "partyReference" : {
+                "globalReference" : "KXEpVIuKyzAZkCm7nY/xjzgHC9X+h3O9RZb6Ejik9l4="
+              },
+              "role" : "SELLER"
+            }, {
+              "partyReference" : {
+                "globalReference" : "NKbmTRySI+MwEy+qqV0+romOrBu0GsWdqogMXGtzSVM="
+              },
+              "role" : "SELLER"
+            }, {
+              "partyReference" : {
+                "globalReference" : "3vqQOOnXah+v+Cwkdh/hSyDP7iD6lLGqRDW/500GvjU="
+              },
+              "role" : "BUYER"
+            } ],
+            "price" : {
+              "accruedInterest" : 1.3700,
+              "grossPrice" : {
+                "amount" : 96.9700,
+                "currency" : {
+                  "value" : "USD"
+                },
+                "priceExpression" : "ABSOLUTE_TERMS"
+              },
+              "netPrice" : {
+                "amount" : 98.3400,
+                "currency" : {
+                  "value" : "USD"
+                },
+                "priceExpression" : "ABSOLUTE_TERMS"
+              }
+            },
+            "product" : {
+              "security" : {
+                "bond" : {
+                  "productIdentifier" : {
+                    "identifier" : [ {
+                      "value" : "DH0371475458"
+                    } ],
+                    "source" : "CUSIP"
+                  }
+                }
+              }
+            },
+            "quantity" : {
+              "amount" : 480000.00
+            },
+            "settlementTerms" : {
+              "settlementAmount" : {
+                "amount" : 472032.00,
+                "currency" : {
+                  "value" : "USD"
+                }
+              },
+              "settlementDate" : {
+                "adjustableDate" : {
+                  "unadjustedDate" : {
+                    "day" : 18,
+                    "month" : 10,
+                    "year" : 2019
+                  }
+                }
+              }
+            },
+            "tradeDate" : {
+              "value" : {
+                "day" : 17,
+                "month" : 10,
+                "year" : 2019
+              }
+            }
+          }
+        } ],
+        "originalTrade" : {
+          "execution" : {
+            "closedState" : {
+              "activityDate" : {
+                "day" : 17,
+                "month" : 10,
+                "year" : 2019
+              },
+              "state" : "ALLOCATED"
+            },
+            "executionType" : "ELECTRONIC",
+            "executionVenue" : {
+              "name" : {
+                "value" : "Execution Venue"
+              }
+            },
+            "identifier" : [ {
+              "assignedIdentifier" : [ {
+                "identifier" : {
+                  "value" : "H8TGBGJ5MIX9D"
+                },
+                "version" : 1
+              } ],
+              "issuerReference" : {
+                "globalReference" : "NKbmTRySI+MwEy+qqV0+romOrBu0GsWdqogMXGtzSVM="
+              },
+              "meta" : {
+                "globalKey" : "sxeWM7RvweIImx0KINtJrlpUnaPznttzvgxj9YzGWFo="
+              }
+            } ],
+            "meta" : {
+              "globalKey" : "4mMqOMRqxjlNQu/r1n3eDFbIfa0JvFxaJXEKYspC/9U="
+            },
+            "partyRole" : [ {
+              "partyReference" : {
+                "globalReference" : "FyO8SCN/q+p/isum7aUiJDPCUXYakcs7f9iFwDOcNYY="
+              },
+              "role" : "CLIENT"
+            }, {
+              "partyReference" : {
+                "globalReference" : "NKbmTRySI+MwEy+qqV0+romOrBu0GsWdqogMXGtzSVM="
+              },
+              "role" : "EXECUTING_ENTITY"
+            }, {
+              "partyReference" : {
+                "globalReference" : "3vqQOOnXah+v+Cwkdh/hSyDP7iD6lLGqRDW/500GvjU="
+              },
+              "role" : "COUNTERPARTY"
+            }, {
+              "partyReference" : {
+                "globalReference" : "FyO8SCN/q+p/isum7aUiJDPCUXYakcs7f9iFwDOcNYY="
+              },
+              "role" : "SELLER"
+            }, {
+              "partyReference" : {
+                "globalReference" : "NKbmTRySI+MwEy+qqV0+romOrBu0GsWdqogMXGtzSVM="
+              },
+              "role" : "SELLER"
+            }, {
+              "partyReference" : {
+                "globalReference" : "3vqQOOnXah+v+Cwkdh/hSyDP7iD6lLGqRDW/500GvjU="
+              },
+              "role" : "BUYER"
+            } ],
+            "price" : {
+              "accruedInterest" : 1.3700,
+              "grossPrice" : {
+                "amount" : 96.9700,
+                "currency" : {
+                  "value" : "USD"
+                },
+                "priceExpression" : "ABSOLUTE_TERMS"
+              },
+              "netPrice" : {
+                "amount" : 98.3400,
+                "currency" : {
+                  "value" : "USD"
+                },
+                "priceExpression" : "ABSOLUTE_TERMS"
+              }
+            },
+            "product" : {
+              "security" : {
+                "bond" : {
+                  "productIdentifier" : {
+                    "identifier" : [ {
+                      "value" : "DH0371475458"
+                    } ],
+                    "source" : "CUSIP"
+                  }
+                }
+              }
+            },
+            "quantity" : {
+              "amount" : 800000.00
+            },
+            "settlementTerms" : {
+              "settlementAmount" : {
+                "amount" : 786720.00,
+                "currency" : {
+                  "value" : "USD"
+                }
+              },
+              "settlementDate" : {
+                "adjustableDate" : {
+                  "unadjustedDate" : {
+                    "day" : 18,
+                    "month" : 10,
+                    "year" : 2019
+                  }
+                }
+              }
+            },
+            "tradeDate" : {
+              "value" : {
+                "day" : 17,
+                "month" : 10,
+                "year" : 2019
+              }
+            }
+          }
+        }
+      },
+      "before" : {
+        "execution" : {
+          "executionType" : "ELECTRONIC",
+          "executionVenue" : {
+            "name" : {
+              "value" : "Execution Venue"
+            }
+          },
+          "identifier" : [ {
+            "assignedIdentifier" : [ {
+              "identifier" : {
+                "value" : "H8TGBGJ5MIX9D"
+              },
+              "version" : 1
+            } ],
+            "issuerReference" : {
+              "globalReference" : "NKbmTRySI+MwEy+qqV0+romOrBu0GsWdqogMXGtzSVM="
+            },
+            "meta" : {
+              "globalKey" : "sxeWM7RvweIImx0KINtJrlpUnaPznttzvgxj9YzGWFo="
+            }
+          } ],
+          "meta" : {
+            "globalKey" : "4mMqOMRqxjlNQu/r1n3eDFbIfa0JvFxaJXEKYspC/9U="
+          },
+          "partyRole" : [ {
+            "partyReference" : {
+              "globalReference" : "FyO8SCN/q+p/isum7aUiJDPCUXYakcs7f9iFwDOcNYY="
+            },
+            "role" : "CLIENT"
+          }, {
+            "partyReference" : {
+              "globalReference" : "NKbmTRySI+MwEy+qqV0+romOrBu0GsWdqogMXGtzSVM="
+            },
+            "role" : "EXECUTING_ENTITY"
+          }, {
+            "partyReference" : {
+              "globalReference" : "3vqQOOnXah+v+Cwkdh/hSyDP7iD6lLGqRDW/500GvjU="
+            },
+            "role" : "COUNTERPARTY"
+          }, {
+            "partyReference" : {
+              "globalReference" : "FyO8SCN/q+p/isum7aUiJDPCUXYakcs7f9iFwDOcNYY="
+            },
+            "role" : "SELLER"
+          }, {
+            "partyReference" : {
+              "globalReference" : "NKbmTRySI+MwEy+qqV0+romOrBu0GsWdqogMXGtzSVM="
+            },
+            "role" : "SELLER"
+          }, {
+            "partyReference" : {
+              "globalReference" : "3vqQOOnXah+v+Cwkdh/hSyDP7iD6lLGqRDW/500GvjU="
+            },
+            "role" : "BUYER"
+          } ],
+          "price" : {
+            "accruedInterest" : 1.3700,
+            "grossPrice" : {
+              "amount" : 96.9700,
+              "currency" : {
+                "value" : "USD"
+              },
+              "priceExpression" : "ABSOLUTE_TERMS"
+            },
+            "netPrice" : {
+              "amount" : 98.3400,
+              "currency" : {
+                "value" : "USD"
+              },
+              "priceExpression" : "ABSOLUTE_TERMS"
+            }
+          },
+          "product" : {
+            "security" : {
+              "bond" : {
+                "productIdentifier" : {
+                  "identifier" : [ {
+                    "value" : "DH0371475458"
+                  } ],
+                  "source" : "CUSIP"
+                }
+              }
+            }
+          },
+          "quantity" : {
+            "amount" : 800000.00
+          },
+          "settlementTerms" : {
+            "settlementAmount" : {
+              "amount" : 786720.00,
+              "currency" : {
+                "value" : "USD"
+              }
+            },
+            "settlementDate" : {
+              "adjustableDate" : {
+                "unadjustedDate" : {
+                  "day" : 18,
+                  "month" : 10,
+                  "year" : 2019
+                }
+              }
+            }
+          },
+          "tradeDate" : {
+            "value" : {
+              "day" : 17,
+              "month" : 10,
+              "year" : 2019
+            }
+          }
+        }
+      }
+    } ]
+  },
+  "timestamp" : [ {
+    "dateTime" : "2019-10-17T16:36:01.891-04:00",
+    "qualification" : "EVENT_CREATION_DATE_TIME"
+  } ]
+}

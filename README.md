@@ -1,5 +1,8 @@
 ![Corda](https://www.corda.net/wp-content/themes/corda/assets/images/crda-logo-big.svg)
 
+* To upload from Settlement Agent through code. 
+* http://3.1.246.227:10070/api/loadWallet
+
 * Pre-requisites
     * This project uses Corda 4.1 to take advantage of reference states
     * As a consequence this project uses Kotlin 1.3
