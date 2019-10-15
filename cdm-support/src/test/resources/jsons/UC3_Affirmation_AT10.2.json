@@ -1,0 +1,54 @@
+{
+  "identifier" : [ {
+    "assignedIdentifier" : [ {
+      "identifier" : {
+        "value" : "D2BCVPTWF3I1R"
+      },
+      "version" : 1
+    } ],
+    "issuerReference" : {
+      "globalReference" : "KXEpVIuKyzAZkCm7nY/xjzgHC9X+h3O9RZb6Ejik9l4="
+    },
+    "meta" : {
+      "globalKey" : "//oUEr4fZvItBkSO0K8mjz37W4CoLUR3go3OYJIv9xU="
+    }
+  } ],
+  "lineage" : {
+    "eventReference" : [ {
+      "globalReference" : "W9gm3pw6ubKQfD+36CqOUoXSbfkwUbxFapgHHZxTPbY="
+    } ],
+    "executionReference" : [ {
+      "globalReference" : "46FBGuPIPQU0bbQKEP4D3PWW8eejaZMZ0zuXsXX311M="
+    } ]
+  },
+  "party" : [ {
+    "account" : {
+      "accountName" : {
+        "value" : "Client2_ACT#0"
+      },
+      "accountNumber" : {
+        "value" : "Client2_ACT#0_CZKSADYPP2K4J"
+      },
+      "meta" : {
+        "globalKey" : "BrMBIMKTK3BGhFqG3Y09Iz7wmpca10yFgwVcYl3eNNQ="
+      }
+    },
+    "meta" : {
+      "globalKey" : "KXEpVIuKyzAZkCm7nY/xjzgHC9X+h3O9RZb6Ejik9l4=",
+      "externalKey" : "Client2_ID#0_ZRHKMHVTQ0MRO"
+    },
+    "name" : {
+      "value" : "Client2"
+    },
+    "partyId" : [ {
+      "value" : "Client2_ID#0_ZRHKMHVTQ0MRO"
+    } ]
+  } ],
+  "partyRole" : [ {
+    "partyReference" : {
+      "globalReference" : "KXEpVIuKyzAZkCm7nY/xjzgHC9X+h3O9RZb6Ejik9l4="
+    },
+    "role" : "CLIENT"
+  }, { } ],
+  "status" : "AFFIRMED"
+}

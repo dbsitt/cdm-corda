@@ -1,0 +1,54 @@
+{
+  "identifier" : [ {
+    "assignedIdentifier" : [ {
+      "identifier" : {
+        "value" : "N5DJ9BOWKX6T9"
+      },
+      "version" : 1
+    } ],
+    "issuerReference" : {
+      "globalReference" : "SqqCOMCU00VO3Ju086/INsvZT6aFHT0P+arEmM/dNCY="
+    },
+    "meta" : {
+      "globalKey" : "f27EGqZbHP+DCrPS4esoYk79pKH05tLPxTBXd4rn9y8="
+    }
+  } ],
+  "lineage" : {
+    "eventReference" : [ {
+      "globalReference" : "ICCCS7UbeFaqyrecVkCAS0Bgvr36kAQR7SPwH9dbhuE="
+    } ],
+    "executionReference" : [ {
+      "globalReference" : "6eD27L7+YkDbOiXRlReVuf49WUV9TUk6cZNGGf+E3h0="
+    } ]
+  },
+  "party" : [ {
+    "account" : {
+      "accountName" : {
+        "value" : "Client3_ACT#1"
+      },
+      "accountNumber" : {
+        "value" : "Client3_ACT#1_PUOUACUJQJ8L6"
+      },
+      "meta" : {
+        "globalKey" : "Mw1gc1V5Fnl7lK6aAzL03a1emwCqVRx5bJ1FNfqEV2I="
+      }
+    },
+    "meta" : {
+      "globalKey" : "SqqCOMCU00VO3Ju086/INsvZT6aFHT0P+arEmM/dNCY=",
+      "externalKey" : "Client3_ID#1_JFRSX8L3C0CAR"
+    },
+    "name" : {
+      "value" : "Client3"
+    },
+    "partyId" : [ {
+      "value" : "Client3_ID#1_JFRSX8L3C0CAR"
+    } ]
+  } ],
+  "partyRole" : [ {
+    "partyReference" : {
+      "globalReference" : "SqqCOMCU00VO3Ju086/INsvZT6aFHT0P+arEmM/dNCY="
+    },
+    "role" : "CLIENT"
+  }, { } ],
+  "status" : "AFFIRMED"
+}

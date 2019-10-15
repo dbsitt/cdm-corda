@@ -23,6 +23,7 @@ class CDMEvent : Contract {
         class Settlement() : Commands
         class Transfer() : Commands
         class Money(): Commands
+        class Collateral(): Commands
         class Execution(val outputIndex: Int) : Commands
         class Allocation(val outputIndex: Int) : Commands
     }

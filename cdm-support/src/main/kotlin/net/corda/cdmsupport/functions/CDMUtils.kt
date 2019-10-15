@@ -8,6 +8,7 @@ import org.isda.cdm.metafields.MetaFields
 import org.isda.cdm.metafields.ReferenceWithMetaParty
 import org.isda.cdm.rosettakey.SerialisingHashFunction
 import java.lang.StringBuilder
+import java.math.BigDecimal
 import java.util.Random
 
 const val SETTLEMENT_AGENT_STR = "SettlementAgent"
@@ -71,4 +72,11 @@ fun generateParty(accountName: String): Party {
     val hash = SerialisingHashFunction().hash(party)
     party = party.toBuilder().setMeta(MetaFields.builder().setGlobalKey(hash).setExternalKey(partyId).build()).build()
     return party
+}
+
+fun generateMoney(amount: BigDecimal): Money{
+    return Money.builder()
+            .setAmount(amount)
+            .setCurrency(FieldWithMetaString.builder().setValue("USD").build())
+            .build()
 }
