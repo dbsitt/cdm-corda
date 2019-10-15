@@ -4,13 +4,11 @@ import com.derivhack.*
 import net.corda.cdmsupport.CDMEvent
 import net.corda.cdmsupport.eventparsing.readTextFromFile
 import net.corda.cdmsupport.eventparsing.serializeCdmObjectIntoJson
-import net.corda.cdmsupport.states.ConfirmationState
-import net.corda.cdmsupport.states.ExecutionState
-import net.corda.cdmsupport.states.WalletState
-import net.corda.cdmsupport.states.TransferState
+import net.corda.cdmsupport.states.*
 import net.corda.core.utilities.getOrThrow
 import net.corda.testing.node.internal.startFlow
 import org.junit.Test
+import java.math.BigDecimal
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -120,6 +118,22 @@ class TransferTestGJ : BaseEventTestGJ() {
         //look closer at the commands
         assertTrue(tx6.commands.get(0).value is CDMEvent.Commands.Transfer)
         assertTrue(tx6.commands.get(0).signers.containsAll(listOf(party5.owningKey, party1.owningKey, party2.owningKey, party6.owningKey)))
+
+        node6.services.startFlow(CollateralTopupFlow("Client1")).resultFuture.getOrThrow().toLedgerTransaction(node6.services)
+        node6.services.startFlow(CollateralTopupFlow("Client2")).resultFuture.getOrThrow().toLedgerTransaction(node6.services)
+        node6.services.startFlow(CollateralTopupFlow("Client3")).resultFuture.getOrThrow().toLedgerTransaction(node6.services)
+        node6.services.startFlow(CollateralTopupFlow("Broker1")).resultFuture.getOrThrow().toLedgerTransaction(node6.services)
+
+
+        var collateralTx = node6.services.startFlow(CollateralFlow()).resultFuture.getOrThrow().toLedgerTransaction(node6.services)
+        checkTheBasicFabricOfTheTransaction(collateralTx, 2, 2, 0, 2)
+        assertEquals(collateralTx.outputStates.filterIsInstance<CollateralWalletState>().size, 2)
+        assertEquals(collateralTx.inputStates.filterIsInstance<CollateralWalletState>().size, 2)
+        val afterSum = BigDecimal.ZERO
+        val beforeSum = BigDecimal.ZERO
+        collateralTx.outputStates.forEach { afterSum.add((it as CollateralWalletState).money().amount) }
+        collateralTx.inputStates.forEach { beforeSum.add((it as CollateralWalletState).money().amount) }
+        assertEquals(beforeSum, afterSum)
     }
 
 }

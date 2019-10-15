@@ -6,7 +6,6 @@ import net.corda.cdmsupport.CDMEvent
 import net.corda.cdmsupport.eventparsing.serializeCdmObjectIntoJson
 import net.corda.cdmsupport.functions.AgentHolder
 import net.corda.cdmsupport.functions.COLLATERAL_AGENT_STR
-import net.corda.cdmsupport.functions.SETTLEMENT_AGENT_STR
 import net.corda.cdmsupport.functions.TransferBuilderFromExecution
 import net.corda.cdmsupport.states.ExecutionState
 import net.corda.cdmsupport.states.TransferState
@@ -118,7 +117,7 @@ class TransferFlow(val executionRef: String) : FlowLogic<SignedTransaction>() {
         }
 
         builder.addCommand(CDMEvent.Commands.Transfer(), collateralParticipants.map { it.owningKey })
-        builder.setTimeWindow(serviceHub.clock.instant(), Constant.DEFAULT_DURATION)
+        builder.setTimeWindow(serviceHub.clock.instant(), DEFAULT_DURATION)
         builder.verify(serviceHub)
 
         val signedTransaction = serviceHub.signInitialTransaction(builder)

@@ -31,6 +31,9 @@ abstract class BaseEventTestGJ(val samplesDirectory: String = "jsons") {
     lateinit var node4: TestStartedNode
     lateinit var node5: TestStartedNode
     lateinit var node6: TestStartedNode
+//    node for client2,3
+    lateinit var node7: TestStartedNode
+    lateinit var node8: TestStartedNode
 
     lateinit var party1: Party
     lateinit var party2: Party
@@ -38,7 +41,9 @@ abstract class BaseEventTestGJ(val samplesDirectory: String = "jsons") {
     lateinit var party4: Party
     lateinit var party5: Party
     lateinit var party6: Party
-
+//    party for client2,3
+    lateinit var party7: Party
+    lateinit var party8: Party
     @Before
     fun setup() {
         mockNetwork = InternalMockNetwork(cordappsForAllNodes = cordappsForPackages("com.derivhack", "net.corda.cdmsupport.testflow", "net.corda.cdmsupport"),
@@ -49,6 +54,8 @@ abstract class BaseEventTestGJ(val samplesDirectory: String = "jsons") {
         node4 = mockNetwork.createPartyNode(CordaX500Name(organisation = "Observery", locality = "New York", country = "US"))
         node5 = mockNetwork.createPartyNode(CordaX500Name(organisation = "SettlementAgent", locality = "New York", country = "US"))
         node6 = mockNetwork.createPartyNode(CordaX500Name(organisation = "CollateralAgent", locality = "New York", country = "US"))
+        node7 = mockNetwork.createPartyNode(CordaX500Name(organisation = "Client2", locality = "New York", country = "US"))
+        node8 = mockNetwork.createPartyNode(CordaX500Name(organisation = "Client3", locality = "New York", country = "US"))
 
         party1 = node1.services.myInfo.legalIdentities.first()
         party2 = node2.services.myInfo.legalIdentities.first()
@@ -56,7 +63,8 @@ abstract class BaseEventTestGJ(val samplesDirectory: String = "jsons") {
         party4 = node4.services.myInfo.legalIdentities.first()
         party5 = node5.services.myInfo.legalIdentities.first()
         party6 = node6.services.myInfo.legalIdentities.first()
-
+        party7 = node7.services.myInfo.legalIdentities.first()
+        party8 = node8.services.myInfo.legalIdentities.first()
     }
 
     @After
