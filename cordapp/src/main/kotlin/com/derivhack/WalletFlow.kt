@@ -5,7 +5,7 @@ import net.corda.cdmsupport.CDMEvent
 import net.corda.cdmsupport.eventparsing.serializeCdmObjectIntoJson
 import net.corda.cdmsupport.functions.AgentHolder.Factory.settlementAgentParty
 import net.corda.cdmsupport.functions.MoneyBuilderFromJson
-import net.corda.cdmsupport.states.MoneyState
+import net.corda.cdmsupport.states.WalletState
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
@@ -16,7 +16,7 @@ import net.corda.core.transactions.TransactionBuilder
 
 @InitiatingFlow
 @StartableByRPC
-class MoneyFlow(val moneyJson: String) : FlowLogic<SignedTransaction>() {
+class WalletFlow(val moneyJson: String) : FlowLogic<SignedTransaction>() {
 
     //TODO
     /**
@@ -48,7 +48,7 @@ class MoneyFlow(val moneyJson: String) : FlowLogic<SignedTransaction>() {
                 .wellKnownPartyFromX500Name(CordaX500Name.parse("O=${settlementAgentParty.name.value},L=New York,C=US"))!!)
         val participants = parties.toList()
 
-        val moneyState = MoneyState (newMoneyJson, newPartyJson, walletReference, inputParty.meta.globalKey, inputParty.name.value, inputParty.partyId[0].value, participants, UniqueIdentifier())
+        val moneyState = WalletState (newMoneyJson, newPartyJson, walletReference, inputParty.meta.globalKey, inputParty.name.value, inputParty.partyId[0].value, participants, UniqueIdentifier())
 
         val builder = TransactionBuilder(notary)
         builder.addOutputState(moneyState)
@@ -72,8 +72,8 @@ class MoneyFlow(val moneyJson: String) : FlowLogic<SignedTransaction>() {
     }
 }
 
-@InitiatedBy(MoneyFlow::class)
-class MoneyResponder(val flowSession: FlowSession) : FlowLogic<SignedTransaction>() {
+@InitiatedBy(WalletFlow::class)
+class WalletResponder(val flowSession: FlowSession) : FlowLogic<SignedTransaction>() {
 
     @Suspendable
     override fun call(): SignedTransaction {

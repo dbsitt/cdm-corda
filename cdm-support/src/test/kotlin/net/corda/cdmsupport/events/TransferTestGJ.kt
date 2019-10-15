@@ -6,7 +6,7 @@ import net.corda.cdmsupport.eventparsing.readTextFromFile
 import net.corda.cdmsupport.eventparsing.serializeCdmObjectIntoJson
 import net.corda.cdmsupport.states.ConfirmationState
 import net.corda.cdmsupport.states.ExecutionState
-import net.corda.cdmsupport.states.MoneyState
+import net.corda.cdmsupport.states.WalletState
 import net.corda.cdmsupport.states.TransferState
 import net.corda.core.utilities.getOrThrow
 import net.corda.testing.node.internal.startFlow
@@ -23,19 +23,19 @@ class TransferTestGJ : BaseEventTestGJ() {
     fun transfer() {
 
         val jsonTextClientCash = readTextFromFile("/${samplesDirectory}/UC0_money_Client_Cash_GJ.json");
-        val futureClientCash = node5.services.startFlow(MoneyFlow(jsonTextClientCash)).resultFuture
+        val futureClientCash = node5.services.startFlow(WalletFlow(jsonTextClientCash)).resultFuture
         futureClientCash.getOrThrow().toLedgerTransaction(node5.services)
 
         val jsonTextClientSecurity = readTextFromFile("/${samplesDirectory}/UC0_money_Client_Security_GJ.json");
-        val futureClientSecurity = node5.services.startFlow(MoneyFlow(jsonTextClientSecurity)).resultFuture
+        val futureClientSecurity = node5.services.startFlow(WalletFlow(jsonTextClientSecurity)).resultFuture
         futureClientSecurity.getOrThrow().toLedgerTransaction(node5.services)
 
         val jsonTextBrokerCash = readTextFromFile("/${samplesDirectory}/UC0_money_Broker_Cash_GJ.json");
-        val futureBrokerCash = node5.services.startFlow(MoneyFlow(jsonTextBrokerCash)).resultFuture
+        val futureBrokerCash = node5.services.startFlow(WalletFlow(jsonTextBrokerCash)).resultFuture
         futureBrokerCash.getOrThrow().toLedgerTransaction(node5.services)
 
         val jsonTextBrokerSecurity = readTextFromFile("/${samplesDirectory}/UC0_money_Broker_Security_GJ.json");
-        val futureBrokerSecurity = node5.services.startFlow(MoneyFlow(jsonTextBrokerSecurity)).resultFuture
+        val futureBrokerSecurity = node5.services.startFlow(WalletFlow(jsonTextBrokerSecurity)).resultFuture
         futureBrokerSecurity.getOrThrow().toLedgerTransaction(node5.services)
 
         //sendNewTradeInAndCheckAssertionsGJ("UC1_block_execute_BT1_GJ.json")
@@ -94,7 +94,7 @@ class TransferTestGJ : BaseEventTestGJ() {
         val inputState = tx6.inputStates.find { it is ExecutionState } as ExecutionState
         val outputState = tx6.outputStates.find { it is ExecutionState } as ExecutionState
         val transferState = tx6.outputStates.find { it is TransferState } as TransferState
-        val moneyStates = tx6.outputStates.filterIsInstance<MoneyState>()
+        val moneyStates = tx6.outputStates.filterIsInstance<WalletState>()
 
         println("after transfer moneyStates ##############################")
         println(moneyStates)

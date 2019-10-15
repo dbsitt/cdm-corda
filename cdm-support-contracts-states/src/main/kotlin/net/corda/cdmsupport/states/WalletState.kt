@@ -8,7 +8,7 @@ import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.Party
 
 @BelongsToContract(CDMEvent::class)
-data class MoneyState(
+data class WalletState(
         val moneyJson: String,
         val partyJson: String,
         val walletReference: String,

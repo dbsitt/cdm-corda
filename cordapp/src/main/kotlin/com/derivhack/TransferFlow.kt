@@ -6,14 +6,13 @@ import net.corda.cdmsupport.CDMEvent
 import net.corda.cdmsupport.eventparsing.serializeCdmObjectIntoJson
 import net.corda.cdmsupport.functions.TransferBuilderFromExecution
 import net.corda.cdmsupport.states.ExecutionState
-import net.corda.cdmsupport.states.MoneyState
+import net.corda.cdmsupport.states.WalletState
 import net.corda.cdmsupport.states.TransferState
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
 import net.corda.core.node.services.queryBy
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
-import net.corda.core.utilities.seconds
 
 @InitiatingFlow
 @StartableByRPC
@@ -31,14 +30,14 @@ class TransferFlow(val executionRef: String) : FlowLogic<SignedTransaction>() {
     @Suspendable
     override fun call(): SignedTransaction {
 
-        val moneyStates = serviceHub.vaultService.queryBy<MoneyState>().states
+        val moneyStates = serviceHub.vaultService.queryBy<WalletState>().states
         println("before transfer moneyStates ##############################")
         println(moneyStates)
         println("before transfer moneyStates ##############################")
 
         val statesAndRef = serviceHub.vaultService.queryBy<ExecutionState>().states
         val stateAndRef = statesAndRef.first { it.state.data.execution().meta.globalKey == executionRef }
-        val moneyStateAndRef = serviceHub.vaultService.queryBy<MoneyState>().states
+        val moneyStateAndRef = serviceHub.vaultService.queryBy<WalletState>().states
 
         val state = stateAndRef.state.data
 
