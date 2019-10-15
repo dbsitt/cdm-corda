@@ -205,8 +205,27 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         p2pPort 10017
         rpcSettings {
             address("localhost:10018")
-            adminAddress("localhost:10059")
+            adminAddress("localhost:10058")
         }
+        webPort 10019
+        cordapps = [
+                "$project.group:cdm-support-contracts-states:$project.version",
+                "$project.group:cdm-support:$project.version",
+                "$project.group:cordapp:$project.version",
+                "$corda_release_group:corda-finance-contracts:$corda_release_version",
+                "$corda_release_group:corda-finance-workflows:$corda_release_version"
+        ]
+    }
+
+    node {
+        name "O=CollateralAgent,L=London,C=GB"
+        notary = [validating: false]
+        p2pPort 10020
+        rpcSettings {
+            address("localhost:10021")
+            adminAddress("localhost:10061")
+        }
+        webPort 10022
         cordapps = [
                 "$project.group:cdm-support-contracts-states:$project.version",
                 "$project.group:cdm-support:$project.version",
