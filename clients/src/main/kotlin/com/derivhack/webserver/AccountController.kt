@@ -5,11 +5,15 @@ import com.derivhack.webserver.models.AffirmationViewModel
 import com.derivhack.webserver.models.ExecutionViewModel
 import com.derivhack.webserver.models.TransferViewModel
 import com.derivhack.webserver.models.WalletViewModel
+import javax.ws.rs.core.Response.Status.BAD_REQUEST
+import javax.ws.rs.core.Response.Status.CREATED
+import javax.ws.rs.core.Response
 import net.corda.cdmsupport.states.AffirmationState
 import net.corda.cdmsupport.states.ExecutionState
 import net.corda.cdmsupport.states.TransferState
 import net.corda.cdmsupport.states.WalletState
 import net.corda.core.messaging.vaultQueryBy
+import net.corda.core.utilities.getOrThrow
 import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation.*
 
@@ -28,11 +32,17 @@ class AccountController(rpc: NodeRPCConnection) {
     private val proxy = rpc.proxy
 
     @PostMapping(value = ["/loadWallet"])
-    private fun execution(@RequestBody executionJson: String): String {
-
-        val tx = proxy.startFlowDynamic(WalletFlow::class.java, executionJson)
-
-        return "Wallet is loaded with the Money provided !!!! "
+    private fun execution(@RequestBody moneyJson: String): Response  {
+        val (status,message) = try {
+            val tx = proxy.startFlowDynamic(WalletFlow::class.java, moneyJson)
+            val result = tx.returnValue.getOrThrow();
+            logger.info("!!! ${tx.id}");
+            CREATED to "Transaction with id: ${result.id} created"
+        }catch(e :Exception) {
+            BAD_REQUEST to e.message
+        }
+        return Response.status(status).entity(message).build();
+            //return "Wallet is loaded with the Money provided !!!! "
     }
 
     @GetMapping(value = ["/getAccounts"])
