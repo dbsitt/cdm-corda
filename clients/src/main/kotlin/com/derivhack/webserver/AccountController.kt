@@ -105,14 +105,19 @@ class AccountController(rpc: NodeRPCConnection) {
 
         logger.info("!!!!! Inside the getAccounts to get the account details...")
         val walletStates = proxy.vaultQueryBy<WalletState>().states
+        logger.info("!!!! walletStates Size" + walletStates.size)
         val walletStateData = walletStates.map { it.state.data }
 
-        return walletStateData.map {
+        val wallets : MutableSet<WalletViewModel> = mutableSetOf()
+
+        walletStateData.map {
             logger.info("!!!!! getting the details for ${it}...")
             logger.info(it.party().toString())
-            WalletViewModel(it.walletReference, it.party().account.accountNumber.value,it.party().account.accountName.value,
-                    it.money().currency.value,  it.money().amount.toLong())
+            wallets.add(WalletViewModel(it.walletReference, it.party().account.accountNumber.value,it.party().account.accountName.value,
+                    it.money().currency.value,  it.money().amount.toLong()))
         }
+
+        return wallets.toList();
     }
 
     @GetMapping(value = ["/getTestAccounts"])
