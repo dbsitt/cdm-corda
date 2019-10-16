@@ -53,6 +53,7 @@ class AccountController(rpc: NodeRPCConnection) {
     private fun settlement(@RequestBody request: executionRequest): ResponseEntity<Any> {
 
         val (status,message) = try {
+            println(">>>>>>>>> settlement request.executionRef: [${request.executionRef}]")
             val tx = proxy.startFlowDynamic(SettlementFlow::class.java, request.executionRef)
             val result = tx.returnValue.getOrThrow();
             CREATED to "Transaction with id: ${result.id} created"
@@ -67,6 +68,7 @@ class AccountController(rpc: NodeRPCConnection) {
     private fun transfer(@RequestBody request: executionRequest): ResponseEntity<Any> {
 
         val (status,message) = try {
+            println(">>>>>>>>> transfer request.executionRef: [${request.executionRef}]")
             val tx = proxy.startFlowDynamic(TransferFlow::class.java, request.executionRef)
             val result = tx.returnValue.getOrThrow();
             CREATED to "Transaction with id: ${result.id} created"
@@ -81,6 +83,7 @@ class AccountController(rpc: NodeRPCConnection) {
     private fun confirmation(@RequestBody request: executionRequest): ResponseEntity<Any> {
 
         val (status,message) = try {
+            println(">>>>>>>>> confirmation request.executionRef: [${request.executionRef}]")
             val tx = proxy.startFlowDynamic(ConfirmationFlow::class.java, request.executionRef)
             val result = tx.returnValue.getOrThrow();
 
@@ -94,6 +97,7 @@ class AccountController(rpc: NodeRPCConnection) {
     @PostMapping(value = ["/api/affirmation"])
     private fun affirmation(@RequestBody request: executionRequest): ResponseEntity<Any> {
         val (status,message) = try {
+            println(">>>>>>>>> affirmation request.executionRef: [${request.executionRef}]")
             val tx = proxy.startFlowDynamic(AffirmationFlow::class.java, request.executionRef)
             val result = tx.returnValue.getOrThrow();
             println(">>>>>>>>>>>>>>>>>>");
