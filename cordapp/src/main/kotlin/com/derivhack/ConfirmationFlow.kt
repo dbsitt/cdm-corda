@@ -1,11 +1,13 @@
 package com.derivhack
 
 import co.paralleluniverse.fibers.Suspendable
+import com.derivhack.Constant.Factory.INSTRUCTED
 import net.corda.cdmsupport.CDMEvent
 import net.corda.cdmsupport.eventparsing.serializeCdmObjectIntoJson
 import net.corda.cdmsupport.functions.AgentHolder.Factory.settlementAgentParty
 import net.corda.cdmsupport.functions.SETTLEMENT_AGENT_STR
 import net.corda.cdmsupport.functions.confirmationBuilderFromExecution
+import net.corda.cdmsupport.functions.hashCDM
 import net.corda.cdmsupport.states.ConfirmationState
 import net.corda.cdmsupport.states.ExecutionState
 import net.corda.cdmsupport.validators.CdmValidators
@@ -14,9 +16,9 @@ import net.corda.core.flows.*
 import net.corda.core.node.services.queryBy
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
-import org.isda.cdm.ConfirmationStatusEnum
 import org.isda.cdm.PartyRole
 import org.isda.cdm.PartyRoleEnum
+import org.isda.cdm.metafields.MetaFields
 import org.isda.cdm.metafields.ReferenceWithMetaParty
 
 @InitiatingFlow
@@ -53,15 +55,19 @@ class ConfirmationFlow(val executionRef: String) : FlowLogic<SignedTransaction>(
         val confirmationState = ConfirmationState(serializeCdmObjectIntoJson(confirmation), participants)
         val settlementAgentRef = ReferenceWithMetaParty.builder().setGlobalReference(settlementAgentParty.meta.globalKey).build()
 
+
         //println("settlementAgentRef ##############################")
         //println(settlementAgentRef)
         //println("settlementAgentRef ##############################")
-
-        val executionBuilder = state.execution().toBuilder()
+        val execution = state.execution()
+        val executionBuilder = execution.toBuilder()
                 .addPartyRef(settlementAgentParty)
                 .addPartyRole(PartyRole.builder().setRole(PartyRoleEnum.SETTLEMENT_AGENT).setPartyReference(settlementAgentRef).build())
 
-        val executionState = state.copy(workflowStatus = ConfirmationStatusEnum.CONFIRMED.name, participants = participants,  executionJson = serializeCdmObjectIntoJson(executionBuilder.build()))
+        val settlementTermsBuilder = execution.settlementTerms.toBuilder().setMeta(MetaFields.builder().setGlobalKey(hashCDM(execution.settlementTerms)).build())
+        executionBuilder.setSettlementTerms(settlementTermsBuilder.build())
+
+        val executionState = state.copy(workflowStatus = INSTRUCTED, participants = participants,  executionJson = serializeCdmObjectIntoJson(executionBuilder.build()))
 
         //println("confirmation executionState ##############################")
         //println(executionState)

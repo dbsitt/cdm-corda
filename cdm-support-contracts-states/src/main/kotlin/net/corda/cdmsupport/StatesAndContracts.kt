@@ -7,7 +7,6 @@ import net.corda.core.contracts.*
 import net.corda.core.contracts.Requirements.using
 import net.corda.core.transactions.LedgerTransaction
 import net.corda.core.utilities.loggerFor
-import java.math.BigDecimal
 import java.security.PublicKey
 
 class CDMEvent : Contract {
@@ -22,7 +21,7 @@ class CDMEvent : Contract {
         class Confirmation() : Commands
         class Settlement() : Commands
         class Transfer() : Commands
-        class Money(): Commands
+        class WalletTopup(): Commands
         class Collateral(): Commands
         class Execution(val outputIndex: Int) : Commands
         class Allocation(val outputIndex: Int) : Commands
@@ -135,7 +134,7 @@ class CDMEvent : Contract {
         logger.debug("------ Output state affirm status: "+ confirmationState.confirmation().status)
         logger.debug("------ Output state execution status: "+ executionState.workflowStatus)
 
-        "Status of out execution state and affirmation state are same." using (confirmationState.confirmation().status.name == executionState?.workflowStatus)
+        "Status of out execution state and affirmation state are same." using ("INSTRUCTED" == executionState.workflowStatus)
     }
 
     private fun keysFromParticipants(execution:ContractState): Set<PublicKey>{

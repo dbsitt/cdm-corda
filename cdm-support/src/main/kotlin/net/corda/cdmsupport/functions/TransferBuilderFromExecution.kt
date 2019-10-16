@@ -3,6 +3,7 @@ package net.corda.cdmsupport.functions
 import net.corda.cdmsupport.states.ExecutionState
 import org.isda.cdm.*
 import org.isda.cdm.metafields.MetaFields
+import org.isda.cdm.metafields.ReferenceWithMetaParty
 import java.math.BigDecimal
 
 class TransferBuilderFromExecution {
@@ -13,8 +14,6 @@ class TransferBuilderFromExecution {
         val transferPrimitive = createTransfer(state)
         val primitiveEvent = PrimitiveEvent.builder().addTransfer(transferPrimitive).build()
 
-        //val event = Event.builder().build()
-        //val hash = SerialisingHashFunction().hash(event)
         val eventBuilder = Event.builder()
                 .addParty(client.value)
                 .addParty(broker.value)
@@ -24,35 +23,21 @@ class TransferBuilderFromExecution {
         return eventBuilder.setMeta(MetaFields.builder().setGlobalKey(hashCDM(eventBuilder.build())).build()).build()
     }
 
-/*    fun createTransfer(state: ExecutionState): TransferPrimitive {
-        val transferBuilder = TransferPrimitive.builder()
-                .setSettlementType(TransferSettlementEnum.DELIVERY_VERSUS_PAYMENT)
-                .setSettlementDate(AdjustableOrAdjustedOrRelativeDate.builder()
-                        .build())
-                .setStatus(TransferStatusEnum.SETTLED)
-                .addCashTransfer(CashTransferComponent.builder()
-                        .setAmount(Money.builder().build())
-                        .setPayerReceiver(PayerReceiver.builder()
-                                .setPayerPartyReference(extractParty(state, PartyRoleEnum.CLIENT))
-                                .setPayerPartyReference(extractParty(state, PartyRoleEnum.EXECUTING_ENTITY))
-                                .build())
-                        .build())
-                .addSecurityTransfer(SecurityTransferComponent.builder()
-                        .setQuantity(state.execution().quantity.amount)
-                        .setSecurity(state.execution().product.security)
-                        .setAssetTransferType(AssetTransferTypeEnum.FREE_OF_PAYMENT) // ???
-                        .setTransferorTransferee(
-                                TransferorTransferee.TransferorTransfereeBuilder()
-                                        .setTransfereePartyReference(extractParty(state, PartyRoleEnum.CLIENT))
-                                        .setTransferorPartyReference(extractParty(state, PartyRoleEnum.EXECUTING_ENTITY))
-                                        .build())
-                        .build())
-                .setSettlementReference(state.execution().settlementTerms.meta.globalKey)
-        return transferBuilder.setMeta(MetaFields.builder().setGlobalKey(hashCDM(transferBuilder.build())).build()).build()
-    }*/
-
     fun createTransfer(state: ExecutionState): TransferPrimitive {
+
         val execution = state.execution()
+        var buyer: ReferenceWithMetaParty
+        var seller: ReferenceWithMetaParty
+        if (checkIfBuyTransferBetweenBrokerAndClient(execution)) {
+            buyer = extractParty(execution, PartyRoleEnum.CLIENT)
+            seller = extractParty(execution, PartyRoleEnum.EXECUTING_ENTITY)
+        } else if (checkIfSellTransferBetweenBrokerAndClient(execution)) {
+            buyer = extractParty(execution, PartyRoleEnum.EXECUTING_ENTITY)
+            seller = extractParty(execution, PartyRoleEnum.CLIENT)
+        } else {
+            buyer = extractParty(execution, PartyRoleEnum.BUYER)
+            seller = extractParty(execution, PartyRoleEnum.SELLER)
+        }
         val transferBuilder = TransferPrimitive.builder()
                 .setSettlementType(TransferSettlementEnum.DELIVERY_VERSUS_PAYMENT)
                 .setSettlementDate(AdjustableOrAdjustedOrRelativeDate.builder().setUnadjustedDate(execution.settlementTerms.settlementDate.adjustableDate.unadjustedDate).build())
@@ -62,8 +47,8 @@ class TransferBuilderFromExecution {
                                 .setCurrency(execution.price.netPrice.currency)
                                 .build())
                         .setPayerReceiver(PayerReceiver.builder()
-                                .setPayerPartyReference(extractParty(state, PartyRoleEnum.CLIENT))
-                                .setReceiverPartyReference(extractParty(state, PartyRoleEnum.EXECUTING_ENTITY))
+                                .setPayerPartyReference(buyer)
+                                .setReceiverPartyReference(seller)
                                 .build())
                         .build())
                 .addSecurityTransfer(SecurityTransferComponent.builder()
@@ -71,8 +56,8 @@ class TransferBuilderFromExecution {
                         .setSecurity(execution.product.security)
                         .setAssetTransferType(AssetTransferTypeEnum.FREE_OF_PAYMENT) // ???
                         .setTransferorTransferee(TransferorTransferee.TransferorTransfereeBuilder()
-                                .setTransfereePartyReference(extractParty(state, PartyRoleEnum.CLIENT))
-                                .setTransferorPartyReference(extractParty(state, PartyRoleEnum.EXECUTING_ENTITY))
+                                .setTransfereePartyReference(buyer)
+                                .setTransferorPartyReference(seller)
                                 .build())
                         .build())
                 .setSettlementReference(state.execution().settlementTerms.meta.globalKey)

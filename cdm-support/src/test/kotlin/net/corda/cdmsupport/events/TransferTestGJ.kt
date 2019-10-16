@@ -73,18 +73,8 @@ class TransferTestGJ : BaseEventTestGJ() {
         println(confirmationOutputState)
         println("confirmation ##############################")
 
-        //----------------settlement
-        val future5 = node5.services.startFlow(SettlementFlow(allocationExecutionKey)).resultFuture
-        val tx5 = future5.getOrThrow().toLedgerTransaction(node5.services)
-        val settlementOutputState = tx5.outputStates.find { it is ExecutionState } as ExecutionState
-        println("settlement ##############################")
-        println(settlementOutputState.execution().party)
-        println(settlementOutputState.execution().partyRole)
-        println(settlementOutputState)
-        println("settlement ##############################")
-
         //----------------transfer
-        val future6 = node5.services.startFlow(TransferFlow(allocationExecutionKey)).resultFuture
+        val future6 = node5.services.startFlow(SettlementFlow(allocationExecutionKey)).resultFuture
         val tx6 = future6.getOrThrow().toLedgerTransaction(node5.services)
 
         checkTheBasicFabricOfTheTransaction(tx6, 5, 6, 0, 1)

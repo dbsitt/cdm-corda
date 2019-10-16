@@ -52,7 +52,7 @@ class WalletFlow(val moneyJson: String) : FlowLogic<SignedTransaction>() {
 
         val builder = TransactionBuilder(notary)
         builder.addOutputState(moneyState)
-        builder.addCommand(CDMEvent.Commands.Money(), participants.map { it.owningKey })
+        builder.addCommand(CDMEvent.Commands.WalletTopup(), participants.map { it.owningKey })
 
         builder.verify(serviceHub)
 

@@ -48,8 +48,21 @@ fun hashCDM(obj: RosettaModelObject): String {
 
 fun extractParty(state: ExecutionState, roleEnum: PartyRoleEnum): ReferenceWithMetaParty {
     val clientRole = state.execution().partyRole.first { it.role == roleEnum }
-
     return state.execution().party.first { it.value.meta.globalKey == clientRole.partyReference.globalReference }
+}
+
+fun checkIfBuyTransferBetweenBrokerAndClient(execution: Execution): Boolean {
+    return execution.partyRole.filter { it.role == PartyRoleEnum.BUYER }.size == 2
+}
+
+fun checkIfSellTransferBetweenBrokerAndClient(execution: Execution): Boolean {
+    return execution.partyRole.filter { it.role == PartyRoleEnum.SELLER }.size == 2
+}
+
+fun extractParty(state: Execution, roleEnum: PartyRoleEnum): ReferenceWithMetaParty {
+    val clientRole = state.partyRole.first { it.role == roleEnum }
+
+    return state.party.first { it.value.meta.globalKey == clientRole.partyReference.globalReference }
 }
 
 fun extractPartyRole(state: ExecutionState, roleEnum: PartyRoleEnum): PartyRole {

@@ -4,6 +4,9 @@ import net.corda.cdmsupport.CDMEvent
 import net.corda.cdmsupport.ExecutionAlreadyExists
 import net.corda.cdmsupport.eventparsing.serializeCdmObjectIntoJson
 import net.corda.cdmsupport.extensions.*
+import net.corda.cdmsupport.functions.SETTLEMENT_AGENT_STR
+import net.corda.cdmsupport.functions.extractParty
+import net.corda.cdmsupport.functions.hashCDM
 import net.corda.cdmsupport.states.ExecutionState
 import net.corda.cdmsupport.vaultquerying.CdmVaultQuery
 import net.corda.core.contracts.ContractClassName
@@ -14,6 +17,8 @@ import net.corda.core.identity.AbstractParty
 import net.corda.core.identity.Party
 import net.corda.core.transactions.TransactionBuilder
 import org.isda.cdm.*
+import org.isda.cdm.metafields.MetaFields
+import java.lang.IllegalStateException
 
 
 class CdmTransactionBuilder(notary: Party? = null,
@@ -25,7 +30,6 @@ class CdmTransactionBuilder(notary: Party? = null,
     init {
 
         event.primitive.allocation?.forEach { processAllocationPrimitive(it) }
-        //event.primitive.allocation?.forEach { processAllocationPrimitiveNew(it) }
         event.primitive.execution?.forEach { processeExecutionPrimitive(it) }
     }
 
@@ -35,42 +39,35 @@ class CdmTransactionBuilder(notary: Party? = null,
         val executionLineage = event.lineage.executionReference[0].globalReference
 
         if (allocationPrimitive.validateLineageAndTotals(serviceHub!!, executionLineage)) {
+            val settlementAgent = serviceHub.identityService.partiesFromName(SETTLEMENT_AGENT_STR,true).single()
             val inputState = cdmVaultQuery.getCdmExecutionStateByMetaGlobalKey(executionLineage)
             addInputState(inputState)
 
             val outputBeforeState = createExecutionState(allocationPrimitive.after.originalTrade.execution)
+            val participantsWithSAWithoutClient = mutableListOf(settlementAgent)
+            participantsWithSAWithoutClient.addAll(outputBeforeState.participants.filter { !it.name.organisation.contains("Client") })
+            check(participantsWithSAWithoutClient.size == 3) {"trade between 2 broker, settlement_agent only"}
+            val clientRef = outputBeforeState.execution().party.first { it.value.name.value.contains("Client")}
+            val beforeExecution = outputBeforeState.execution()
+            val beforeExecutionBuilder = beforeExecution.toBuilder()
+            val settlementTermsBuilder = beforeExecution.settlementTerms.toBuilder().setMeta(MetaFields.builder().setGlobalKey(hashCDM(beforeExecution.settlementTerms)).build())
 
+            beforeExecutionBuilder.party.removeIf{it.globalReference == clientRef.globalReference}
+            beforeExecutionBuilder.partyRole.removeIf{it.partyReference.globalReference == clientRef.globalReference}
+            beforeExecutionBuilder.setSettlementTerms(settlementTermsBuilder.build())
+            val outputBeforeStateWithSettlementAgent = outputBeforeState.copy(participants = participantsWithSAWithoutClient, executionJson = serializeCdmObjectIntoJson(beforeExecutionBuilder.build()), workflowStatus = "INSTRUCTED")
+
+            check(outputBeforeStateWithSettlementAgent.execution().party.size == 2) {"json also need to contains 2 parties only: 2 brokers"}
+            check(outputBeforeStateWithSettlementAgent.execution().partyRole.size == 4) {"json also need to contains 4 parties only: executing_entity, counterparty, seller, buyer"}
             val outputAfterStates = allocationPrimitive.after.allocatedTrade.map { createExecutionStateFromAfterAllocation(it.execution, executionLineage) }
 
-            val outputIndexOnBefore = this.addOutputStateReturnIndex(outputBeforeState, CDMEvent.ID)
-            addCommand(CDMEvent.Commands.Execution(outputIndexOnBefore), outputBeforeState.participants.map { it.owningKey }.toSet().toList())
+            val outputIndexOnBefore = this.addOutputStateReturnIndex(outputBeforeStateWithSettlementAgent, CDMEvent.ID)
+
+            addCommand(CDMEvent.Commands.Execution(outputIndexOnBefore), outputBeforeStateWithSettlementAgent.participants.map { it.owningKey }.toList())
 
             outputAfterStates.forEach {
                 val outputIndexOnAfter = this.addOutputStateReturnIndex(it, CDMEvent.ID)
                 addCommand(CDMEvent.Commands.Execution(outputIndexOnAfter), it.participants.map { p -> p.owningKey }.toSet().toList())
-            }
-        }
-    }
-
-    @Throws(RuntimeException::class)
-    private fun processAllocationPrimitiveNew(allocationPrimitive: AllocationPrimitive) {
-
-        val executionLineage = event.lineage.executionReference[0].globalReference
-
-        if (allocationPrimitive.validateLineageAndTotals(serviceHub!!, executionLineage)) {
-            val inputState = cdmVaultQuery.getCdmExecutionStateByMetaGlobalKey(executionLineage)
-            addInputState(inputState)
-
-            val outputBeforeState = createExecutionState(allocationPrimitive.after.originalTrade.execution)
-
-            val outputAfterStates = allocationPrimitive.after.allocatedTrade.map { createExecutionStateFromAfterAllocation(it.execution, executionLineage) }
-
-            val outputIndexOnBefore = this.addOutputStateReturnIndex(outputBeforeState, CDMEvent.ID)
-            addCommand(CDMEvent.Commands.Execution(outputIndexOnBefore), outputBeforeState.participants.map { it.owningKey }.toSet().toList())
-
-            outputAfterStates.forEach {
-                val outputIndexOnAfter = this.addOutputStateReturnIndex(it, CDMEvent.ID)
-                addCommand(CDMEvent.Commands.Allocation(outputIndexOnAfter), it.participants.map { p -> p.owningKey }.toSet().toList())
             }
         }
     }
@@ -109,9 +106,14 @@ class CdmTransactionBuilder(notary: Party? = null,
 
     private fun createExecutionStateFromAfterAllocation(execution: Execution, executionLineage: String) : ExecutionState {
         val executionWithParties : Execution = execution.createExecutionWithPartiesFromAllocationEvent(event, executionLineage)
+        val counterParty = extractParty(executionWithParties, PartyRoleEnum.COUNTERPARTY)
+        executionWithParties.party.removeIf { it.globalReference == counterParty.globalReference }
+        executionWithParties.partyRole.removeIf {it.partyReference.globalReference == counterParty.globalReference}
         val json = serializeCdmObjectIntoJson(executionWithParties)
         val participants = executionWithParties.mapPartyToCordaX500ForAllocation(serviceHub!!)
-
+        check(executionWithParties.party.size == 2) {"should be 2 party here only, executing_entity and client"}
+        check(executionWithParties.partyRole.size == 4) {"should contain buyer, seller, executing_entity and client"}
+        check(participants.size == 2) { "participant for alloc should be client and broker only" }
         return ExecutionState(json, event.meta.globalKey, AffirmationStatusEnum.UNAFFIRMED.name, participants, UniqueIdentifier())
     }
 
