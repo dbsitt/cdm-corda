@@ -1,0 +1,156 @@
+{
+  "action" : "NEW",
+  "eventDate" : {
+    "day" : 18,
+    "month" : 10,
+    "year" : 2019
+  },
+  "eventEffect" : {
+    "transfer" : [ {
+      "globalReference" : "DDZoq0aRoK4P8RfgBV+s7tSDzAg1mmfqnVcJgsGLsf4="
+    } ]
+  },
+  "eventIdentifier" : [ {
+    "assignedIdentifier" : [ {
+      "identifier" : {
+        "value" : "XXMC7247NDFJP"
+      },
+      "version" : 1
+    } ],
+    "issuerReference" : {
+      "globalReference" : "NKbmTRySI+MwEy+qqV0+romOrBu0GsWdqogMXGtzSVM="
+    },
+    "meta" : {
+      "globalKey" : "7pu8tLqAR2wS6cPXp+yBiA3GGxQaVOVTaKC0jtXDrvk="
+    }
+  } ],
+  "lineage" : {
+    "eventReference" : [ {
+      "globalReference" : "+7n1brvvY3wT9GqslH653jHaCwSlRnW8wKoq++q4Uxs="
+    } ],
+    "executionReference" : [ {
+      "globalReference" : "9GhLvVNY/M88lXT0nHWhYUtFqM+B5y19dt6P/jmvFZI="
+    } ]
+  },
+  "meta" : {
+    "globalKey" : "1H1DxMnNilN4p4FlC59Y22XzAtspDn5Hxvc07+pIX1M="
+  },
+  "party" : [ {
+    "account" : {
+      "accountName" : {
+        "value" : "Broker2_ACT#0"
+      },
+      "accountNumber" : {
+        "value" : "Broker2_ACT#0_TTJE0NQUTRIFB"
+      },
+      "meta" : {
+        "globalKey" : "GyBU5vHoyL4BM7ctxcCsNp3VXMlELtkERhGao8KbExY="
+      }
+    },
+    "meta" : {
+      "globalKey" : "NKbmTRySI+MwEy+qqV0+romOrBu0GsWdqogMXGtzSVM=",
+      "externalKey" : "Broker2_ID#0_AN93QUDTMRPAB"
+    },
+    "name" : {
+      "value" : "Broker2"
+    },
+    "partyId" : [ {
+      "value" : "Broker2_ID#0_AN93QUDTMRPAB"
+    } ]
+  }, {
+    "account" : {
+      "accountName" : {
+        "value" : "Broker1_ACT#0"
+      },
+      "accountNumber" : {
+        "value" : "Broker1_ACT#0_WWVA12ZJ21IW2"
+      },
+      "meta" : {
+        "globalKey" : "xvRB/LCSyPGS736BhYfTkW1AH56H1bzHHXbqZJepZ0w="
+      }
+    },
+    "meta" : {
+      "globalKey" : "3vqQOOnXah+v+Cwkdh/hSyDP7iD6lLGqRDW/500GvjU=",
+      "externalKey" : "Broker1_ID#0_4NGIDYZJ4ZBDX"
+    },
+    "name" : {
+      "value" : "Broker1"
+    },
+    "partyId" : [ {
+      "value" : "Broker1_ID#0_4NGIDYZJ4ZBDX"
+    } ]
+  } ],
+  "primitive" : {
+    "transfer" : [ {
+      "cashTransfer" : [ {
+        "amount" : {
+          "amount" : 786720.00,
+          "currency" : {
+            "value" : "USD"
+          }
+        },
+        "payerReceiver" : {
+          "payerAccountReference" : {
+            "globalReference" : "GyBU5vHoyL4BM7ctxcCsNp3VXMlELtkERhGao8KbExY="
+          },
+          "payerPartyReference" : {
+            "globalReference" : "NKbmTRySI+MwEy+qqV0+romOrBu0GsWdqogMXGtzSVM="
+          },
+          "receiverAccountReference" : {
+            "globalReference" : "xvRB/LCSyPGS736BhYfTkW1AH56H1bzHHXbqZJepZ0w="
+          },
+          "receiverPartyReference" : {
+            "globalReference" : "3vqQOOnXah+v+Cwkdh/hSyDP7iD6lLGqRDW/500GvjU="
+          }
+        }
+      } ],
+      "identifier" : {
+        "value" : "6BE4CAPX1GCW4"
+      },
+      "meta" : {
+        "globalKey" : "DDZoq0aRoK4P8RfgBV+s7tSDzAg1mmfqnVcJgsGLsf4="
+      },
+      "securityTransfer" : [ {
+        "quantity" : 800000.00,
+        "security" : {
+          "bond" : {
+            "productIdentifier" : {
+              "identifier" : [ {
+                "value" : "DH0371475458"
+              } ],
+              "source" : "CUSIP"
+            }
+          }
+        },
+        "transferorTransferee" : {
+          "transfereeAccountReference" : {
+            "globalReference" : "GyBU5vHoyL4BM7ctxcCsNp3VXMlELtkERhGao8KbExY="
+          },
+          "transfereePartyReference" : {
+            "globalReference" : "NKbmTRySI+MwEy+qqV0+romOrBu0GsWdqogMXGtzSVM="
+          },
+          "transferorAccountReference" : {
+            "globalReference" : "xvRB/LCSyPGS736BhYfTkW1AH56H1bzHHXbqZJepZ0w="
+          },
+          "transferorPartyReference" : {
+            "globalReference" : "3vqQOOnXah+v+Cwkdh/hSyDP7iD6lLGqRDW/500GvjU="
+          }
+        }
+      } ],
+      "settlementDate" : {
+        "unadjustedDate" : {
+          "day" : 18,
+          "month" : 10,
+          "year" : 2019
+        }
+      },
+      "settlementReference" : "puIAdOprLHFIb",
+      "settlementType" : "DELIVERY_VERSUS_PAYMENT",
+      "status" : "SETTLED"
+    } ]
+  },
+  "timestamp" : [ {
+    "dateTime" : "2019-10-18T16:36:01.551-04:00",
+    "qualification" : "EVENT_CREATION_DATE_TIME"
+  } ]
+}
