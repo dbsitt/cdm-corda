@@ -11,6 +11,7 @@ import net.corda.core.identity.Party
 data class TransferState(
         val transferJson: String,
         val eventReference: String,
+        val executionReference: String,
         val workflowStatus : String,
         override val participants: List<Party>,
         override val linearId:  UniqueIdentifier = UniqueIdentifier()) : LinearState {

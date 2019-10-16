@@ -20,8 +20,8 @@ import kotlin.test.assertTrue
 
 class TransferTestGJ : BaseEventTestGJ() {
 
-    val outputDir = TransferTestGJ::class.java.getResource("/out/").path
-//    val outputDir = "C:\\Users\\CongCuong\\Downloads\\outputTest\\"
+//    val outputDir = TransferTestGJ::class.java.getResource("/out/").path
+    val outputDir = "C:\\Users\\CongCuong\\Downloads\\outputTest\\"
     @Test
     fun transfer() {
 
@@ -104,68 +104,73 @@ class TransferTestGJ : BaseEventTestGJ() {
         confirmBuilder.setLineage(Lineage.builder().addExecutionReference(ReferenceWithMetaExecution.builder().setGlobalReference(allocationExecutionKey).build()).build())
         serializeCdmObjectIntoFile(confirmBuilder.build(), "${outputDir}/uc4_out.json")
 
-        //------------transfer between broker to broker
+        //------------settlement between broker to broker
         val future5 = node5.services.startFlow(SettlementFlow(executionRef)).resultFuture
         val tx5 = future5.getOrThrow().toLedgerTransaction(node5.services)
 
-        checkTheBasicFabricOfTheTransaction(tx5, 5, 6, 0, 1)
+        checkTheBasicFabricOfTheTransaction(tx5, 1, 4, 0, 1)
 
         val b2bInputState = tx5.inputStates.find { it is ExecutionState } as ExecutionState
         val b2bExecutionOutputState = tx5.outputStates.filterIsInstance<ExecutionState>().first()
         val b2bTransferState = tx5.outputStates.filterIsInstance<TransferState>().first()
-        val b2bMoneyStates = tx5.outputStates.filterIsInstance<WalletState>()
+        val b2bDBSPortfolioStates = tx5.outputStates.filterIsInstance<DBSPortfolioState>()
 
         assertNotNull(b2bInputState)
         assertNotNull(b2bExecutionOutputState)
         assertNotNull(b2bTransferState)
-        assertNotNull(b2bMoneyStates)
+        assertEquals(b2bDBSPortfolioStates.size, 2)
 
         assertEquals(b2bExecutionOutputState.execution().settlementTerms.meta.globalKey, b2bTransferState.transfer().settlementReference)
         //look closer at the commands
-        assertTrue(tx5.commands[0].value is CDMEvent.Commands.Transfer)
+        assertTrue(tx5.commands[0].value is CDMEvent.Commands.Settlement)
         assertTrue(tx5.commands[0].signers.containsAll(listOf(party5.owningKey, party2.owningKey, party3.owningKey, party6.owningKey)))
 
         serializeCdmObjectIntoFile(createEventFromTransferPrimitive(b2bTransferState.transfer(), executionRef), "${outputDir}/uc5_b2b_out.json")
 
-//        //----------------transfer
+//        //----------------settlement between client1 and broker1
         val future6 = node5.services.startFlow(SettlementFlow(allocationExecutionKey)).resultFuture
         val tx6 = future6.getOrThrow().toLedgerTransaction(node5.services)
 
-        checkTheBasicFabricOfTheTransaction(tx6, 5, 6, 0, 1)
+        checkTheBasicFabricOfTheTransaction(tx6, 1, 4, 0, 1)
 //
         val inputState = tx6.inputStates.find { it is ExecutionState } as ExecutionState
         val outputState = tx6.outputStates.find { it is ExecutionState } as ExecutionState
         val transferState = tx6.outputStates.find { it is TransferState } as TransferState
-        val moneyStates = tx6.outputStates.filterIsInstance<WalletState>()
+        val portfolioStates = tx6.outputStates.filterIsInstance<DBSPortfolioState>()
 
         assertNotNull(inputState)
         assertNotNull(outputState)
         assertNotNull(transferState)
+        assertEquals(portfolioStates.size, 2)
 
         assertEquals(outputState.execution().settlementTerms.meta.globalKey, transferState.transfer().settlementReference)
 
         //look closer at the commands
-        assertTrue(tx6.commands[0].value is CDMEvent.Commands.Transfer)
+        assertTrue(tx6.commands[0].value is CDMEvent.Commands.Settlement)
         assertTrue(tx6.commands[0].signers.containsAll(listOf(party5.owningKey, party1.owningKey, party2.owningKey, party6.owningKey)))
 
 
         serializeCdmObjectIntoFile(createEventFromTransferPrimitive(transferState.transfer(), allocationExecutionKey), "${outputDir}/uc5_b2c_out.json")
+        serializeCdmObjectIntoFile(portfolioStates.first().portfolio(), "${outputDir}/uc6_b2c_portfolio1.json")
+        serializeCdmObjectIntoFile(portfolioStates.last().portfolio(), "${outputDir}/uc6_b2c_portfolio2.json")
 
-//        node6.services.startFlow(CollateralTopupFlow("Client1")).resultFuture.getOrThrow().toLedgerTransaction(node6.services)
-//        node6.services.startFlow(CollateralTopupFlow("Client2")).resultFuture.getOrThrow().toLedgerTransaction(node6.services)
-//        node6.services.startFlow(CollateralTopupFlow("Client3")).resultFuture.getOrThrow().toLedgerTransaction(node6.services)
-//        node6.services.startFlow(CollateralTopupFlow("Broker1")).resultFuture.getOrThrow().toLedgerTransaction(node6.services)
-//
-//
-//        var collateralTx = node6.services.startFlow(CollateralFlow()).resultFuture.getOrThrow().toLedgerTransaction(node6.services)
-//        checkTheBasicFabricOfTheTransaction(collateralTx, 2, 2, 0, 2)
-//        assertEquals(collateralTx.outputStates.filterIsInstance<CollateralWalletState>().size, 2)
-//        assertEquals(collateralTx.inputStates.filterIsInstance<CollateralWalletState>().size, 2)
-//        val afterSum = BigDecimal.ZERO
-//        val beforeSum = BigDecimal.ZERO
-//        collateralTx.outputStates.forEach { afterSum.add((it as CollateralWalletState).money().amount) }
-//        collateralTx.inputStates.forEach { beforeSum.add((it as CollateralWalletState).money().amount) }
-//        assertEquals(beforeSum, afterSum)
+    //----------------transfer between client1 and broker1
+    val transferB2C = node5.services.startFlow(TransferFlow(allocationExecutionKey)).resultFuture
+    val transferTransactionB2C = transferB2C.getOrThrow().toLedgerTransaction(node5.services)
+    checkTheBasicFabricOfTheTransaction(transferTransactionB2C, 4, 4, 0, 1)
+    val transferB2CExecution = transferTransactionB2C.outputStates.filterIsInstance<ExecutionState>().first()
+    val transferB2CTransfer = transferTransactionB2C.outputStates.filterIsInstance<TransferState>().first()
+    val transferB2CPortfolios = transferTransactionB2C.outputStates.filterIsInstance<DBSPortfolioState>()
+
+    assertEquals(transferB2CExecution.workflowStatus, PositionStatusEnum.SETTLED.name)
+    assertNotNull(transferB2CTransfer, PositionStatusEnum.SETTLED.name)
+    assertEquals(transferB2CPortfolios.size, 2)
+    for (portfolio in transferB2CPortfolios) {
+        assertEquals(portfolio.workflowStatus, PositionStatusEnum.SETTLED.name)
+    }
+    assertTrue(transferTransactionB2C.commands[0].value is CDMEvent.Commands.Transfer)
+    serializeCdmObjectIntoFile(transferB2CPortfolios.first().portfolio(), "${outputDir}/uc6_b2c_portfolio1_after.json")
+    serializeCdmObjectIntoFile(transferB2CPortfolios.last().portfolio(), "${outputDir}/uc6_b2c_portfolio2_after.json")
     }
 
     private fun createEventFromTransferPrimitive(transferPrimitive: TransferPrimitive, executionRef: String): Event {

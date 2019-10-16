@@ -36,7 +36,7 @@ class TransferBuilderFromExecution {
         val transferBuilder = TransferPrimitive.builder()
                 .setSettlementType(TransferSettlementEnum.DELIVERY_VERSUS_PAYMENT)
                 .setSettlementDate(AdjustableOrAdjustedOrRelativeDate.builder().setUnadjustedDate(execution.settlementTerms.settlementDate.adjustableDate.unadjustedDate).build())
-                .setStatus(TransferStatusEnum.SETTLED)
+                .setStatus(TransferStatusEnum.INSTRUCTED)
                 .addCashTransfer(CashTransferComponent.builder()
                         .setAmount(Money.builder().setAmount(execution.settlementTerms.settlementAmount.amount)
                                 .setCurrency(execution.price.netPrice.currency)

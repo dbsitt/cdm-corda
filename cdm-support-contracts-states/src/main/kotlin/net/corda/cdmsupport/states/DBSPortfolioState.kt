@@ -11,8 +11,8 @@ import org.isda.cdm.Portfolio
 @BelongsToContract(CDMEvent::class)
 data class DBSPortfolioState(
         val portfolioJson: String,
-        val executionRef: String,
         val workflowStatus : String,
+        val executionRef: String,
         override val participants: List<Party>,
         override val linearId: UniqueIdentifier = UniqueIdentifier()) : LinearState {
 

@@ -46,12 +46,11 @@ class CdmTransactionBuilder(notary: Party? = null,
             val settlementAgent = serviceHub.identityService.partiesFromName(SETTLEMENT_AGENT_STR,true).single()
             val inputState = cdmVaultQuery.getCdmExecutionStateByMetaGlobalKey(executionLineage)
 
-            val closedState = inputState.state?.data?.execution()?.closedState?.state?.name?.orEmpty()
+            val closedState = inputState.state.data.execution().closedState?.state?.name.orEmpty()
 
             logger.debug("INPUT_STATE.closedState: $closedState");
 
             if("ALLOCATED" == closedState){
-
                 throw Exception("Block Trade is already allocated")
             }
 
@@ -69,7 +68,8 @@ class CdmTransactionBuilder(notary: Party? = null,
             beforeExecutionBuilder.party.removeIf{it.globalReference == clientRef.globalReference}
             beforeExecutionBuilder.partyRole.removeIf{it.partyReference.globalReference == clientRef.globalReference}
             beforeExecutionBuilder.setSettlementTerms(settlementTermsBuilder.build())
-            val outputBeforeStateWithSettlementAgent = outputBeforeState.copy(participants = participantsWithSAWithoutClient, executionJson = serializeCdmObjectIntoJson(beforeExecutionBuilder.build()), workflowStatus = "INSTRUCTED")
+            val outputBeforeStateWithSettlementAgent = outputBeforeState.copy(participants = participantsWithSAWithoutClient,
+                    executionJson = serializeCdmObjectIntoJson(beforeExecutionBuilder.build()), workflowStatus = ClosedStateEnum.ALLOCATED.name)
 
             check(outputBeforeStateWithSettlementAgent.execution().party.size == 2) {"json also need to contains 2 parties only: 2 brokers"}
             check(outputBeforeStateWithSettlementAgent.execution().partyRole.size == 4) {"json also need to contains 4 parties only: executing_entity, counterparty, seller, buyer"}

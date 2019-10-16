@@ -4,19 +4,18 @@ import co.paralleluniverse.fibers.Suspendable
 import com.derivhack.Constant.Factory.DEFAULT_DURATION
 import net.corda.cdmsupport.CDMEvent
 import net.corda.cdmsupport.eventparsing.serializeCdmObjectIntoJson
-import net.corda.cdmsupport.functions.AgentHolder
-import net.corda.cdmsupport.functions.COLLATERAL_AGENT_STR
-import net.corda.cdmsupport.functions.TransferBuilderFromExecution
+import net.corda.cdmsupport.functions.*
+import net.corda.cdmsupport.states.DBSPortfolioState
 import net.corda.cdmsupport.states.ExecutionState
 import net.corda.cdmsupport.states.TransferState
 import net.corda.cdmsupport.states.WalletState
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
+import net.corda.core.identity.Party
 import net.corda.core.node.services.queryBy
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
-import org.isda.cdm.PartyRole
-import org.isda.cdm.PartyRoleEnum
+import org.isda.cdm.*
 import org.isda.cdm.metafields.ReferenceWithMetaParty
 
 @InitiatingFlow
@@ -41,8 +40,8 @@ class SettlementFlow(val executionRef: String) : FlowLogic<SignedTransaction>() 
         val cordaCollateralAgent = serviceHub.identityService.partiesFromName(COLLATERAL_AGENT_STR, true).single()
         val collateralParticipants = mutableListOf(cordaCollateralAgent)
         collateralParticipants.addAll(state.participants
-                .map { net.corda.core.identity.Party(it.nameOrNull(), it.owningKey) })
-        val participants = state.participants.map { net.corda.core.identity.Party(it.nameOrNull(), it.owningKey) }
+                .map { Party(it.nameOrNull(), it.owningKey) })
+        val participants = state.participants.map { Party(it.nameOrNull(), it.owningKey) }
 
         //println("transfer participants ##############################")
         //println(participants)
@@ -56,58 +55,31 @@ class SettlementFlow(val executionRef: String) : FlowLogic<SignedTransaction>() 
                 .addPartyRef(AgentHolder.collateralAgentParty)
                 .addPartyRole(PartyRole.builder().setRole(PartyRoleEnum.SECURED_PARTY).setPartyReference(collateralAgentRef).build())
 
-        val executionState = state.copy(workflowStatus = "SETTLED", participants = collateralParticipants,  executionJson = serializeCdmObjectIntoJson(executionBuilder.build()))
+        val executionState = state.copy(workflowStatus = TransferStatusEnum.INSTRUCTED.name, participants = collateralParticipants,  executionJson = serializeCdmObjectIntoJson(executionBuilder.build()))
 
         builder.addInputState(stateAndRef)
         builder.addOutputState(executionState)
+        val executionRef = executionState.execution().meta.globalKey
 
         for (transfer in transferEvent.primitive.transfer) {
-            val transferState = TransferState(serializeCdmObjectIntoJson(transfer), transferEvent.meta.globalKey, "TRANSFERRED", participants)
+            val transferState = TransferState(serializeCdmObjectIntoJson(transfer), transferEvent.meta.globalKey, executionRef, TransferStatusEnum.INSTRUCTED.name, participants)
             builder.addOutputState(transferState)
-            val cashPayerId = transferState.transfer().cashTransfer[0].payerReceiver.payerPartyReference.globalReference
-            val cashReceiverId = transferState.transfer().cashTransfer[0].payerReceiver.receiverPartyReference.globalReference
-            val cashCurrency = transferState.transfer().cashTransfer[0].amount.currency.value
-            val cashAmount = transferState.transfer().cashTransfer[0].amount.amount
-            val securityTransferorId = transferState.transfer().securityTransfer[0].transferorTransferee.transferorPartyReference.globalReference
-            val securityTransfereeId = transferState.transfer().securityTransfer[0].transferorTransferee.transfereePartyReference.globalReference
-            val securityProduct = transferState.transfer().securityTransfer[0].security.bond.productIdentifier.identifier[0].value
-            val securityQuantity = transferState.transfer().securityTransfer[0].quantity
+            val portfolios = createPortfoliosFromTransfer(transfer, executionRef)
+            for (portfolio in portfolios) {
 
-            val cashPayerWalletReference = cashPayerId + "_" + cashCurrency
-            val cashReceiverWalletReference = cashReceiverId + "_" + cashCurrency
-            val securityTransferorWalletReference = securityTransferorId + "_" + securityProduct
-            val securityTransfereeWalletReference = securityTransfereeId + "_" + securityProduct
+                val portfolioParties : MutableSet<Party> = mutableSetOf()
+                portfolio.aggregationParameters.party.forEach{
+                    portfolioParties.add(serviceHub.identityService.partiesFromName(it.value.name.value, true).single())
+                }
 
-            val cashPayerWallet = moneyStateAndRef.first { it.state.data.walletReference == cashPayerWalletReference }
-            val cashReceiverWallet = moneyStateAndRef.first { it.state.data.walletReference == cashReceiverWalletReference }
-            val securityTransferorWallet = moneyStateAndRef.first { it.state.data.walletReference == securityTransferorWalletReference }
-            val securityTransfereeWallet = moneyStateAndRef.first { it.state.data.walletReference == securityTransfereeWalletReference }
+                portfolioParties.add(serviceHub.identityService.partiesFromName(SETTLEMENT_AGENT_STR, true).single())
 
-            val cashPayerMoneyState = cashPayerWallet.state.data
-            val cashPayerNewMoney = TransferBuilderFromExecution().minusMoneyAmount(cashPayerMoneyState.money(), cashAmount)
-            val cashPayerNewMoneyState = cashPayerMoneyState.copy(moneyJson = serializeCdmObjectIntoJson(cashPayerNewMoney))
-            val cashReceiverMoneyState = cashReceiverWallet.state.data
-            val cashReceiverNewMoney = TransferBuilderFromExecution().addMoneyAmount(cashReceiverMoneyState.money(), cashAmount)
-            val cashReceiverNewMoneyState = cashReceiverMoneyState.copy(moneyJson = serializeCdmObjectIntoJson(cashReceiverNewMoney))
-            val securityTransferorState = securityTransferorWallet.state.data
-            val securityTransferorNewMoney = TransferBuilderFromExecution().minusMoneyAmount(securityTransferorState.money(), securityQuantity)
-            val securityTransferorNewMoneyState = securityTransferorState.copy(moneyJson = serializeCdmObjectIntoJson(securityTransferorNewMoney))
-            val securityTransfereeState = securityTransfereeWallet.state.data
-            val securityTransfereeNewMoney = TransferBuilderFromExecution().addMoneyAmount(securityTransfereeState.money(), securityQuantity)
-            val securityTransfereeNewMoneyState = securityTransfereeState.copy(moneyJson = serializeCdmObjectIntoJson(securityTransfereeNewMoney))
-
-            builder.addInputState(cashPayerWallet)
-            builder.addInputState(cashReceiverWallet)
-            builder.addInputState(securityTransferorWallet)
-            builder.addInputState(securityTransfereeWallet)
-
-            builder.addOutputState(cashPayerNewMoneyState)
-            builder.addOutputState(cashReceiverNewMoneyState)
-            builder.addOutputState(securityTransferorNewMoneyState)
-            builder.addOutputState(securityTransfereeNewMoneyState)
+                val dbsPortfolioState = DBSPortfolioState(serializeCdmObjectIntoJson(portfolio), PositionStatusEnum.EXECUTED.name, executionRef, portfolioParties.toList())
+                builder.addOutputState(dbsPortfolioState)
+            }
         }
 
-        builder.addCommand(CDMEvent.Commands.Transfer(), collateralParticipants.map { it.owningKey })
+        builder.addCommand(CDMEvent.Commands.Settlement(), collateralParticipants.map { it.owningKey })
         builder.setTimeWindow(serviceHub.clock.instant(), DEFAULT_DURATION)
         builder.verify(serviceHub)
 
