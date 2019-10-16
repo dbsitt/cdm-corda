@@ -1,6 +1,7 @@
 package net.corda.cdmsupport.eventparsing
 
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper
+import net.corda.cdmsupport.CollateralInstructionWrapper
 import net.corda.cdmsupport.transactionbuilding.CdmTransactionBuilder
 import org.isda.cdm.*
 
@@ -23,6 +24,11 @@ fun parseMoneyFromJson(json: String): Money {
 fun parsePartyFromJson(json: String): Party {
     val rosettaObjectMapper = RosettaObjectMapper.getDefaultRosettaObjectMapper()
     return rosettaObjectMapper.readValue<Party>(json, Party::class.java)
+}
+
+fun parseCorllateralInstructionWrapperFromJson(json:String) : CollateralInstructionWrapper {
+    val rosettaObjectMapper = RosettaObjectMapper.getDefaultRosettaObjectMapper()
+    return  rosettaObjectMapper.readValue<CollateralInstructionWrapper>(json, CollateralInstructionWrapper::class.java)
 }
 
 fun readTextFromFile(pathToResource: String): String {
