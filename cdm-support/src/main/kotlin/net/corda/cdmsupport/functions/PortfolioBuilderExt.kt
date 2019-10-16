@@ -1,77 +1,88 @@
 package net.corda.cdmsupport.functions
 
+import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper
+import net.corda.cdmsupport.eventparsing.serializeCdmObjectIntoJson
 import net.corda.cdmsupport.states.ExecutionState
 import org.isda.cdm.*
 import org.isda.cdm.metafields.*
+import org.json.simple.JSONObject
+import java.math.BigDecimal
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import javax.json.JsonObject
+
+
+fun generateSettledPortfolioRpt(instructions:JsonObject, settlementEvent:Event): Portfolio{
+
+
+    //retrieve info from instructions
+    val accJsonString = instructions.getJsonObject("PortfolioInstructions").getJsonObject("Client").getJsonObject("account").toString()
+    val secJsonString = instructions.getJsonObject("PortfolioInstructions").getJsonObject("security").toString()
+
+    val rosettaObjectMapper = RosettaObjectMapper.getDefaultRosettaObjectMapper()
+    val account = rosettaObjectMapper.readValue<Account>(accJsonString,Account::class.java)
+    val security = rosettaObjectMapper.readValue<Security>(secJsonString,Security::class.java)
+    val prod = Product.builder().setSecurity(security).build()
+    val acctNumber = account.accountNumber.value
+
+    // fetch SETTLED TransferStatus
+    val tp = settlementEvent.primitive.transfer?.find{
+        it.status ==TransferStatusEnum.SETTLED
+    } as TransferPrimitive
+
+    val aggBuilder = AggregationParameters.builder()
+
+    val party = settlementEvent.party?.first { acctNumber == it.account.accountNumber.value } as Party
+    val r = ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder().setGlobalReference(party.meta.globalKey).build()
+
+    val y = tp.settlementDate.unadjustedDate.year
+    val m = tp.settlementDate.unadjustedDate.month
+    val d = tp.settlementDate.unadjustedDate.day
+
+    val dateTime = ZonedDateTime.of(y, m, d,
+            0, 0, 0, 0, ZoneId.systemDefault())
 
 
 
-fun processTransferPrimitive(transferPrimitive: TransferPrimitive){
 
-
-    val positionStateBuilder = Position.builder()
-
-    transferPrimitive.securityTransfer?.forEach{
-        
-
-    }
-
-}
-
-fun processSecurityTransfer(secComp:SecurityTransferComponent){
-    secComp.quantity
-    secComp.security
-    secComp.transferorTransferee.transfereeAccountReference
-
-}
-
-fun processEvt(evt:Event){
-
-   // evt.primitive.transfer.forEach { it. }
-
-
-}
-
-fun buildPortfolio(state:ExecutionState): Portfolio {
-
-
-
-
-
-    //val state : ExecutionState;
-    val refInfo = state.execution();
-
-    val partyRole = refInfo.partyRole.first { it.role == PartyRoleEnum.SETTLEMENT_AGENT }
-    val partyRef = partyRole.partyReference.globalReference
-    val party = state.execution().party.first { it.globalReference == partyRef }
-
-
-
-    val aggBuilder = AggregationParameters.builder();
-    val dateTime = ZonedDateTime.of(2019,10,17,
-            0, 0, 0, 0, ZoneId.of("UTC"))
-
-    aggBuilder.setDateTime(dateTime).addProduct(refInfo.product).addParty(party)
+    aggBuilder.addParty(r)
+            .setDateTime(dateTime)
+            .addProduct(prod)
 
     val psBuilder = PortfolioState.builder()
-    psBuilder.setLineage(Lineage.LineageBuilder()
-            .addEventReference(ReferenceWithMetaEvent.ReferenceWithMetaEventBuilder()
-                    .setGlobalReference(state.eventReference).build())
-            .addExecutionReference(ReferenceWithMetaExecution.ReferenceWithMetaExecutionBuilder()
-                    .setGlobalReference(state.execution().meta.globalKey).build()).build())
 
     psBuilder.setMeta(MetaFields.builder().setGlobalKey("YlKpJEBIVtSTVbIh9/NWs5nsE5VdnXSml/+T8ZdgzQE=").build())
 
-    psBuilder.addPositions(Position.builder().build())
+    psBuilder.setLineage(
+            Lineage.LineageBuilder()
+                    .addEventReference(
+                            ReferenceWithMetaEvent.ReferenceWithMetaEventBuilder()
+                                    .setGlobalReference(settlementEvent.meta.globalKey).build()
+                    ).addTransferReference(
+                            ReferenceWithMetaTransferPrimitive.builder()
+                                    .setGlobalReference(settlementEvent.eventEffect.transfer.first().globalReference).build()).build())
 
-    val builder = Portfolio.PortfolioBuilder();
-    builder.setAggregationParameters(aggBuilder.build()).setPortfolioState(psBuilder.build())
+
+    val posBuilder = Position.builder()
+    val secTrans = tp.securityTransfer.first()
+    val quantity = secTrans.quantity
+
+    val cashTrans = tp.cashTransfer.first()
+
+    val amt = cashTrans.amount.amount.multiply(BigDecimal(-1))
+    val cur = cashTrans.amount.currency
+
+    val moneyBuilder = Money.builder()
+
+    moneyBuilder.setAmount(amt).setCurrency(cur)
+    posBuilder.setCashBalance(moneyBuilder.build())
+
+    posBuilder.setPositionStatus(PositionStatusEnum.SETTLED)
+            .setProduct(prod).setQuantity(Quantity.QuantityBuilder().setAmount(quantity).build())
+    psBuilder.addPositionsBuilder(posBuilder)
 
 
-
-
-
-    return builder.build()
+    return Portfolio.builder().setAggregationParametersBuilder(aggBuilder).setPortfolioStateBuilder(psBuilder).build()
 }
+
+
