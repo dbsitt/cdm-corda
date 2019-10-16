@@ -1,12 +1,11 @@
 package net.corda.cdmsupport.functions
 
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper
-import net.corda.cdmsupport.eventparsing.serializeCdmObjectIntoJson
-import net.corda.cdmsupport.states.ExecutionState
 import org.isda.cdm.*
 import org.isda.cdm.metafields.*
-import org.json.simple.JSONObject
+import org.joda.time.LocalDate
 import java.math.BigDecimal
+import java.text.SimpleDateFormat
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import javax.json.JsonObject
@@ -18,6 +17,9 @@ fun generateSettledPortfolioRpt(instructions:JsonObject, settlementEvent:Event):
     //retrieve info from instructions
     val accJsonString = instructions.getJsonObject("PortfolioInstructions").getJsonObject("Client").getJsonObject("account").toString()
     val secJsonString = instructions.getJsonObject("PortfolioInstructions").getJsonObject("security").toString()
+    val dateJsonString = instructions.getJsonObject("PortfolioInstructions").getString("PortfolioDate")
+
+
 
     val rosettaObjectMapper = RosettaObjectMapper.getDefaultRosettaObjectMapper()
     val account = rosettaObjectMapper.readValue<Account>(accJsonString,Account::class.java)
@@ -35,9 +37,16 @@ fun generateSettledPortfolioRpt(instructions:JsonObject, settlementEvent:Event):
     val party = settlementEvent.party?.first { acctNumber == it.account.accountNumber.value } as Party
     val r = ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder().setGlobalReference(party.meta.globalKey).build()
 
-    val y = tp.settlementDate.unadjustedDate.year
-    val m = tp.settlementDate.unadjustedDate.month
-    val d = tp.settlementDate.unadjustedDate.day
+
+    val df = SimpleDateFormat("yyyy-MM-dd")
+    val date = df.parse(dateJsonString)
+
+    val localDate = LocalDate.fromDateFields(date)
+
+
+    val y = localDate.year
+    val m = localDate.monthOfYear
+    val d = localDate.dayOfMonth
 
     val dateTime = ZonedDateTime.of(y, m, d,
             0, 0, 0, 0, ZoneId.systemDefault())
@@ -84,5 +93,8 @@ fun generateSettledPortfolioRpt(instructions:JsonObject, settlementEvent:Event):
 
     return Portfolio.builder().setAggregationParametersBuilder(aggBuilder).setPortfolioStateBuilder(psBuilder).build()
 }
+
+
+
 
 
