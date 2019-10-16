@@ -49,6 +49,20 @@ class AccountController(rpc: NodeRPCConnection) {
         //return "Wallet is loaded with the Money provided !!!! "
     }
 
+    @PostMapping(value = ["/api/collateral"])
+    private fun collateral(@RequestBody instructionJson: String): ResponseEntity<Any> {
+        val (status,message) = try {
+            val tx = proxy.startFlowDynamic(CollateralFlow::class.java, instructionJson)
+            val result = tx.returnValue.getOrThrow();
+            logger.info("!!! ${tx.id}");
+            CREATED to "Collateral done with id: ${result.id} created"
+        }catch(e :Exception) {
+            BAD_REQUEST to e.message
+        }
+        return ResponseEntity.status(status.statusCode).body(message)
+        //return "Wallet is loaded with the Money provided !!!! "
+    }
+
     @PostMapping(value = ["/api/settlement"])
     private fun settlement(@RequestBody request: executionRequest): ResponseEntity<Any> {
 
