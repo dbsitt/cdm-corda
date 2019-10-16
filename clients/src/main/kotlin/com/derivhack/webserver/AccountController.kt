@@ -49,8 +49,8 @@ class AccountController(rpc: NodeRPCConnection) {
         //return "Wallet is loaded with the Money provided !!!! "
     }
 
-    @PostMapping(value = ["/api/collateral"])
-    private fun collateral(@RequestBody instructionJson: String): ResponseEntity<Any> {
+    @PostMapping(value = ["/api/collateralInstruction"])
+    private fun collateralInstruction(@RequestBody instructionJson: String): ResponseEntity<Any> {
         val (status,message) = try {
             val tx = proxy.startFlowDynamic(CollateralFlow::class.java, instructionJson)
             val result = tx.returnValue.getOrThrow();
