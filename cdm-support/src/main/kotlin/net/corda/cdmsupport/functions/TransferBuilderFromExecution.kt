@@ -8,17 +8,12 @@ import java.math.BigDecimal
 
 class TransferBuilderFromExecution {
     fun transferBuilder(state: ExecutionState): Event {
-        val client = extractParty(state, PartyRoleEnum.CLIENT)
-        val broker = extractParty(state, PartyRoleEnum.EXECUTING_ENTITY)
-        val settlementAgent = extractParty(state, PartyRoleEnum.SETTLEMENT_AGENT)
+//        val settlementAgent = extractParty(state, PartyRoleEnum.SETTLEMENT_AGENT)
         val transferPrimitive = createTransfer(state)
         val primitiveEvent = PrimitiveEvent.builder().addTransfer(transferPrimitive).build()
 
         val eventBuilder = Event.builder()
-                .addParty(client.value)
-                .addParty(broker.value)
-                .addParty(settlementAgent.value)
-                .addEventIdentifier(generateIdentifier(settlementAgent, generateNameKey()))
+//                .addEventIdentifier(generateIdentifier(settlementAgent, generateNameKey()))
                 .setPrimitive(primitiveEvent)
         return eventBuilder.setMeta(MetaFields.builder().setGlobalKey(hashCDM(eventBuilder.build())).build()).build()
     }

@@ -94,7 +94,7 @@ class SettlementFlow(val executionRef: String) : FlowLogic<SignedTransaction>() 
             val securityTransferorNewMoneyState = securityTransferorState.copy(moneyJson = serializeCdmObjectIntoJson(securityTransferorNewMoney))
             val securityTransfereeState = securityTransfereeWallet.state.data
             val securityTransfereeNewMoney = TransferBuilderFromExecution().addMoneyAmount(securityTransfereeState.money(), securityQuantity)
-            val securityTransfereeNewMoneyState = cashPayerMoneyState.copy(moneyJson = serializeCdmObjectIntoJson(securityTransfereeNewMoney))
+            val securityTransfereeNewMoneyState = securityTransfereeState.copy(moneyJson = serializeCdmObjectIntoJson(securityTransfereeNewMoney))
 
             builder.addInputState(cashPayerWallet)
             builder.addInputState(cashReceiverWallet)
