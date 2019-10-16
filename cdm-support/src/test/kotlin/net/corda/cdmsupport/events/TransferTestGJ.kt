@@ -48,6 +48,7 @@ class TransferTestGJ : BaseEventTestGJ() {
         val future1 = node2.services.startFlow(ExecutionFlow(jsonText1)).resultFuture
         val tx1 = future1.getOrThrow().toLedgerTransaction(node2.services)
         val tx1ExecutionState = tx1.outputStates.first() as ExecutionState
+        assertEquals(tx1ExecutionState.workflowStatus, "EXECUTED")
         val executionRef = tx1ExecutionState.execution().meta.globalKey
 
         val exeEventBuilder = Event.builder()
