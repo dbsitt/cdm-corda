@@ -6,6 +6,7 @@ import net.corda.cdmsupport.NetIM
 import net.corda.cdmsupport.eventparsing.parseCorllateralInstructionWrapperFromJson
 import net.corda.cdmsupport.eventparsing.serializeCdmObjectIntoJson
 import net.corda.cdmsupport.functions.COLLATERAL_AGENT_STR
+import net.corda.cdmsupport.functions.hashCDM
 import net.corda.cdmsupport.states.DBSPortfolioState
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
@@ -13,7 +14,11 @@ import net.corda.core.identity.Party
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import org.isda.cdm.*
+import org.isda.cdm.metafields.FieldWithMetaString
+import org.isda.cdm.metafields.ReferenceWithMetaExecution
 import org.isda.cdm.metafields.ReferenceWithMetaParty
+import org.isda.cdm.metafields.ReferenceWithMetaTransferPrimitive
+import java.math.BigDecimal
 
 @InitiatingFlow
 @StartableByRPC
@@ -58,12 +63,21 @@ class CollateralFlow(private val instructionJson: String) : FlowLogic<SignedTran
                         .addPositions(Position.builder()
                                 .setQuantity(Quantity.builder().setAmount(amount).build())
                                 .setProduct(Product.builder().setSecurity(security).build())
+                                .setCashBalance(Money.builder()
+                                        .setAmount(BigDecimal.ZERO)
+                                        .setCurrency(FieldWithMetaString.builder().setValue("USD").build())
+                                        .build())
+                                .setPositionStatus(PositionStatusEnum.SETTLED)
                                 .build()).build())
                 .setAggregationParameters(AggregationParameters.builder()
                         .addParty(ReferenceWithMetaParty.builder().setValue(client).build())
                         .build())
-
-        return DBSPortfolioState(serializeCdmObjectIntoJson(portfolioBuilder.build()), "COLLATERAL", "---", participants.toList())
+        val hash = hashCDM(portfolioBuilder.build())
+        portfolioBuilder.portfolioState.setLineage(Lineage.builder()
+                .addTransferReference(ReferenceWithMetaTransferPrimitive.builder().setGlobalReference(hash).build())
+                .addExecutionReference(ReferenceWithMetaExecution.builder().setGlobalReference(hash).build())
+                .build())
+        return DBSPortfolioState(serializeCdmObjectIntoJson(portfolioBuilder.build()), PositionStatusEnum.SETTLED.name, hash, participants.toList())
     }
 }
 
