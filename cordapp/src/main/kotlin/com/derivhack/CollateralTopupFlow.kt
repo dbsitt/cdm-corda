@@ -4,6 +4,7 @@ import co.paralleluniverse.fibers.Suspendable
 import net.corda.cdmsupport.CDMEvent
 import net.corda.cdmsupport.eventparsing.serializeCdmObjectIntoJson
 import net.corda.cdmsupport.functions.AgentHolder.Factory.collateralAgentParty
+import net.corda.cdmsupport.functions.AgentHolder.Factory.settlementAgentParty
 import net.corda.cdmsupport.functions.generateMoney
 import net.corda.cdmsupport.functions.generateParty
 import net.corda.cdmsupport.states.CollateralWalletState
@@ -48,6 +49,8 @@ class CollateralTopupFlow(val partyName: String) : FlowLogic<SignedTransaction>(
         parties.add(serviceHub.identityService
                 .wellKnownPartyFromX500Name(CordaX500Name.parse("O=${inputParty.name.value},L=New York,C=US"))!!)
         parties.add(serviceHub.identityService
+                .wellKnownPartyFromX500Name(CordaX500Name.parse("O=${settlementAgentParty.name.value},L=New York,C=US"))!!)
+        parties.add(serviceHub.identityService
                 .wellKnownPartyFromX500Name(CordaX500Name.parse("O=${collateralAgentParty.name.value},L=New York,C=US"))!!)
         val participants = parties.toList()
 
@@ -55,7 +58,7 @@ class CollateralTopupFlow(val partyName: String) : FlowLogic<SignedTransaction>(
 
         val builder = TransactionBuilder(notary)
         builder.addOutputState(moneyState)
-        builder.addCommand(CDMEvent.Commands.Money(), participants.map { it.owningKey })
+        builder.addCommand(CDMEvent.Commands.WalletTopup(), participants.map { it.owningKey })
 
         builder.verify(serviceHub)
 
