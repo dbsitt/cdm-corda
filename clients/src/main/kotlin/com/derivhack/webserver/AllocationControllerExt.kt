@@ -49,9 +49,12 @@ class AllocationControllerExt (rpc: NodeRPCConnection)  {
         val (status,message) = try {
 
             val allExecutionStatesAndRefs = proxy.vaultQueryBy<ExecutionState>().states
-            val states = allExecutionStatesAndRefs.
-                    filter { it.state.data.execution().meta.globalKey != it.state.data.execution().meta.externalKey }.
-                    map { it.state.data }
+            for(exe in allExecutionStatesAndRefs) {
+                println(exe.state.data.workflowStatus)
+            }
+            val states = allExecutionStatesAndRefs
+//                    filter {it.state.data.execution().meta.globalKey != it.state.data.execution().meta.externalKey }.
+                    .map { it.state.data }
             OK to states.map {
                 ExecutionViewModel2(it.linearId.id.toString(), it.participants, it.execution(), it.eventReference, it.workflowStatus,
                         processsAlocInfo(it))
