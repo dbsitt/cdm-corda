@@ -7,6 +7,7 @@ import net.corda.core.contracts.*
 import net.corda.core.contracts.Requirements.using
 import net.corda.core.transactions.LedgerTransaction
 import net.corda.core.utilities.loggerFor
+import org.isda.cdm.ConfirmationStatusEnum
 import java.security.PublicKey
 
 class CDMEvent : Contract {
@@ -134,7 +135,7 @@ class CDMEvent : Contract {
         logger.debug("------ Output state affirm status: "+ confirmationState.confirmation().status)
         logger.debug("------ Output state execution status: "+ executionState.workflowStatus)
 
-        "Status of out execution state and affirmation state are same." using ("INSTRUCTED" == executionState.workflowStatus)
+        "Status of out execution state and affirmation state are same." using (ConfirmationStatusEnum.CONFIRMED.name == executionState.workflowStatus)
     }
 
     private fun keysFromParticipants(execution:ContractState): Set<PublicKey>{
