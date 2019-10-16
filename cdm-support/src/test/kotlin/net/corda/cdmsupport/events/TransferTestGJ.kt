@@ -167,6 +167,7 @@ class TransferTestGJ : BaseEventTestGJ() {
     assertEquals(transferB2CPortfolios.size, 2)
     for (portfolio in transferB2CPortfolios) {
         assertEquals(portfolio.workflowStatus, PositionStatusEnum.SETTLED.name)
+        assertTrue(portfolio.participants.contains(party6))
     }
     assertTrue(transferTransactionB2C.commands[0].value is CDMEvent.Commands.Transfer)
     serializeCdmObjectIntoFile(transferB2CPortfolios.first().portfolio(), "${outputDir}/uc6_b2c_portfolio1_after.json")

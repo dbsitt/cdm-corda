@@ -65,8 +65,10 @@ class TransferFlow(val executionRef: String) : FlowLogic<SignedTransaction>() {
             portfolioBuilder.portfolioState.lineage.clearExecutionReference()
                     .addTransferReference(ReferenceWithMetaTransferPrimitive.builder().setGlobalReference(transferStateAndRef.state.data.transfer().meta.globalKey)
                     .build())
-
-            val dbsPortfolioOutputState = portfolioStateAndRef.state.data.copy(portfolioJson = serializeCdmObjectIntoJson(portfolioBuilder.build()), workflowStatus = PositionStatusEnum.SETTLED.name)
+            val portfolioParticipants = portfolioStateAndRef.state.data.participants.toMutableSet()
+            portfolioParticipants.add(cordaCollateralAgent)
+            val dbsPortfolioOutputState = portfolioStateAndRef.state.data.copy(portfolioJson = serializeCdmObjectIntoJson(portfolioBuilder.build()),
+                    workflowStatus = PositionStatusEnum.SETTLED.name, participants = portfolioParticipants.toList())
             builder.addOutputState(dbsPortfolioOutputState)
         }
 
