@@ -126,7 +126,7 @@ class CdmTransactionBuilder(notary: Party? = null,
             throw ExecutionAlreadyExists(executionPrimitive.after.execution.meta.globalKey)
         }
 
-        val outputState = createExecutionState(executionPrimitive.after.execution)
+        val outputState = createExecutionState(executionPrimitive.after.execution, status = "EXECUTED")
         val outputIndex = addOutputStateReturnIndex(outputState, CDMEvent.ID)
         addCommand(CDMEvent.Commands.Execution(outputIndex), this.outputStates().flatMap { it.data.participants }.map { it.owningKey }.toSet().toList())
     }
@@ -145,12 +145,12 @@ class CdmTransactionBuilder(notary: Party? = null,
         return indexOfCurrentOutputState()
     }
 
-    private fun createExecutionState(execution: Execution): ExecutionState {
+    private fun createExecutionState(execution: Execution, status: String = AffirmationStatusEnum.UNAFFIRMED.name): ExecutionState {
         val executionWithParties : Execution = execution.createExecutionWithPartiesFromEvent(event)
         val json = serializeCdmObjectIntoJson(executionWithParties)
         val participants = executionWithParties.mapPartyToCordaX500ForExecution(serviceHub!!)
 
-        return ExecutionState(json, event.meta.globalKey, AffirmationStatusEnum.UNAFFIRMED.name, participants, UniqueIdentifier())
+        return ExecutionState(json, event.meta.globalKey, status, participants, UniqueIdentifier())
     }
 
     private fun createExecutionStateFromAfterAllocation(execution: Execution, executionLineage: String) : ExecutionState {
