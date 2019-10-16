@@ -15,36 +15,18 @@ import org.isda.cdm.*
 import org.isda.cdm.metafields.MetaFields
 import org.isda.cdm.metafields.ReferenceWithMetaExecution
 import org.junit.Test
+import java.math.BigDecimal
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class TransferTestGJ : BaseEventTestGJ() {
 
-    //    val outputDir = TransferTestGJ::class.java.getResource("/out/").path
-    val outputDir = "C:\\Users\\CongCuong\\Downloads\\outputTest\\"
+        val outputDir = TransferTestGJ::class.java.getResource("/out/").path
+//    val outputDir = "C:\\Users\\CongCuong\\Downloads\\outputTest\\"
 
     @Test
     fun transfer() {
-
-//        val futureClientCash = node5.services.startFlow(WalletFlow(readTextFromFile("/${samplesDirectory}/UC0_money_Client_Cash_GJ.json"))).resultFuture
-//        futureClientCash.getOrThrow().toLedgerTransaction(node5.services)
-//
-//        val futureClientSecurity = node5.services.startFlow(WalletFlow(readTextFromFile("/${samplesDirectory}/UC0_money_Client_Security_GJ.json"))).resultFuture
-//        futureClientSecurity.getOrThrow().toLedgerTransaction(node5.services)
-//
-//        val futureBrokerCash = node5.services.startFlow(WalletFlow(readTextFromFile("/${samplesDirectory}/UC0_money_Broker_Cash_GJ.json"))).resultFuture
-//        futureBrokerCash.getOrThrow().toLedgerTransaction(node5.services)
-//
-//        val futureBrokerSecurity = node5.services.startFlow(WalletFlow(readTextFromFile("/${samplesDirectory}/UC0_money_Broker_Security_GJ.json"))).resultFuture
-//        futureBrokerSecurity.getOrThrow().toLedgerTransaction(node5.services)
-//
-//        val futureBroker2Cash = node5.services.startFlow(WalletFlow(readTextFromFile("/${samplesDirectory}/UC0_money_Broker_Cash_GJ_4.json"))).resultFuture
-//        futureBroker2Cash.getOrThrow().toLedgerTransaction(node5.services)
-//
-//        val futureBroker2Security = node5.services.startFlow(WalletFlow(readTextFromFile("/${samplesDirectory}/UC0_money_Broker_Security_GJ_4.json"))).resultFuture
-//        futureBroker2Security.getOrThrow().toLedgerTransaction(node5.services)
-
         //sendNewTradeInAndCheckAssertionsGJ("UC1_block_execute_BT1_GJ.json")
         val jsonText1 = readTextFromFile("/${samplesDirectory}/UC1_block_execute_BT1_GJ.json");
         val future1 = node2.services.startFlow(ExecutionFlow(jsonText1)).resultFuture
@@ -178,17 +160,23 @@ class TransferTestGJ : BaseEventTestGJ() {
         val instructedJson = readTextFromFile("/${samplesDirectory}/UC7_Collateral_Instructions.json")
         val instruction = parseCorllateralInstructionWrapperFromJson(instructedJson)
 
-        var payer = instruction.collateralInstructions.client.partyId
+        var client1SubAcc = instruction.collateralInstructions.client.partyId
+        var client1SegregatedAcc = instruction.collateralInstructions.clientSegregated.partyId
+
         val uc7Future = node6.services.startFlow(CollateralFlow(instructedJson)).resultFuture
         val uc7Transaction = uc7Future.getOrThrow().toLedgerTransaction(node6.services)
         val uc7Portfolios = uc7Transaction.outputStates.filterIsInstance<DBSPortfolioState>()
         checkTheBasicFabricOfTheTransaction(uc7Transaction, 0, 2, 0, 1)
-        val party1SubAcc = mutableListOf<DBSPortfolioState>()
+        val party1Portfolio = mutableListOf<DBSPortfolioState>()
+        party1Portfolio.addAll(transferB2CPortfolios.filter { it.portfolio().aggregationParameters.party.first().value.partyId.first().value == client1SubAcc.first().value })
+        party1Portfolio.addAll(uc7Portfolios.filter { it.portfolio().aggregationParameters.party.first().value.partyId.first().value == client1SubAcc.first().value })
 
-        party1SubAcc.addAll(transferB2CPortfolios.filter { it.portfolio().aggregationParameters.party.first().value.partyId.first().value == payer.first().value })
-        party1SubAcc.addAll(uc7Portfolios.filter { it.portfolio().aggregationParameters.party.first().value.partyId.first().value == payer.first().value })
-//        serializeCdmObjectIntoFile(uc7Portfolios.first().portfolio(), "${outputDir}/uc7_portfolio1.json")
-//        serializeCdmObjectIntoFile(uc7Portfolios.last().portfolio(), "${outputDir}/uc7_portfolio2.json")
+        val party1SegregatedPortfolio = mutableListOf<DBSPortfolioState>()
+        party1SegregatedPortfolio.addAll(transferB2CPortfolios.filter { it.portfolio().aggregationParameters.party.first().value.partyId.first().value == client1SegregatedAcc.first().value })
+        party1SegregatedPortfolio.addAll(uc7Portfolios.filter { it.portfolio().aggregationParameters.party.first().value.partyId.first().value == client1SegregatedAcc.first().value })
+
+        serializeCdmObjectIntoFile(generateFinalPortfolio(party1Portfolio), "${outputDir}/uc7_portfolio1.json")
+        serializeCdmObjectIntoFile(generateFinalPortfolio(party1SegregatedPortfolio), "${outputDir}/uc7_portfolio2.json")
     }
 
     private fun createEventFromTransferPrimitive(transferPrimitive: TransferPrimitive, executionRef: String): Event {
@@ -210,8 +198,21 @@ class TransferTestGJ : BaseEventTestGJ() {
         return exeEventBuilder.setMeta(MetaFields.builder().setGlobalKey(hashCDM(exeEventBuilder.build())).build()).build()
     }
 
-//    private fun generateFinalPortfolio(clientPortfolioStates: List<PortfolioState>): Portfolio {
-//
-//    }
+    private fun generateFinalPortfolio(clientPortfolioStates: List<DBSPortfolioState>): Portfolio {
+        var balance = BigDecimal.ZERO
+
+        for (portfolioState in clientPortfolioStates) {
+            balance = balance.add(portfolioState.portfolio().portfolioState.positions.first().quantity.amount)
+        }
+        val product = clientPortfolioStates.first().portfolio().portfolioState.positions.first().product
+        val builder = clientPortfolioStates.first().portfolio().toBuilder()
+
+        builder.portfolioState.clearPositions()
+        builder.portfolioState.addPositions(Position.builder()
+                .setQuantity(Quantity.builder().setAmount(balance).build())
+                .setProduct(product)
+                .build())
+        return builder.build()
+    }
 
 }
