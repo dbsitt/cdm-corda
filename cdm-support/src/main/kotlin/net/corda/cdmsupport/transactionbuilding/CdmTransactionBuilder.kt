@@ -16,6 +16,7 @@ import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.identity.AbstractParty
 import net.corda.core.identity.Party
 import net.corda.core.transactions.TransactionBuilder
+import net.corda.core.utilities.loggerFor
 import org.isda.cdm.*
 import org.isda.cdm.metafields.MetaFields
 import java.lang.IllegalStateException
@@ -30,17 +31,30 @@ class CdmTransactionBuilder(notary: Party? = null,
     init {
 
         event.primitive.allocation?.forEach { processAllocationPrimitive(it) }
+        //event.primitive.allocation?.forEach { processAllocationPrimitiveNew(it) }
         event.primitive.execution?.forEach { processeExecutionPrimitive(it) }
     }
 
     @Throws(RuntimeException::class)
     private fun processAllocationPrimitive(allocationPrimitive: AllocationPrimitive) {
 
+        val logger = loggerFor<CdmTransactionBuilder>()
+
         val executionLineage = event.lineage.executionReference[0].globalReference
 
         if (allocationPrimitive.validateLineageAndTotals(serviceHub!!, executionLineage)) {
             val settlementAgent = serviceHub.identityService.partiesFromName(SETTLEMENT_AGENT_STR,true).single()
             val inputState = cdmVaultQuery.getCdmExecutionStateByMetaGlobalKey(executionLineage)
+
+            val closedState = inputState.state?.data?.execution()?.closedState?.state?.name?.orEmpty()
+
+            logger.debug("INPUT_STATE.closedState: $closedState");
+
+            if("ALLOCATED" == closedState){
+
+                throw Exception("Block Trade is already allocated")
+            }
+
             addInputState(inputState)
 
             val outputBeforeState = createExecutionState(allocationPrimitive.after.originalTrade.execution)
@@ -68,6 +82,41 @@ class CdmTransactionBuilder(notary: Party? = null,
             outputAfterStates.forEach {
                 val outputIndexOnAfter = this.addOutputStateReturnIndex(it, CDMEvent.ID)
                 addCommand(CDMEvent.Commands.Execution(outputIndexOnAfter), it.participants.map { p -> p.owningKey }.toSet().toList())
+            }
+        }
+    }
+
+    @Throws(RuntimeException::class)
+    private fun processAllocationPrimitiveNew(allocationPrimitive: AllocationPrimitive) {
+
+        val logger = loggerFor<CdmTransactionBuilder>()
+
+        val executionLineage = event.lineage.executionReference[0].globalReference
+
+        if (allocationPrimitive.validateLineageAndTotals(serviceHub!!, executionLineage)) {
+            val inputState = cdmVaultQuery.getCdmExecutionStateByMetaGlobalKey(executionLineage)
+
+            val closedState = inputState.state?.data?.execution()?.closedState?.state?.name?.orEmpty()
+
+            logger.debug("INPUT_STATE.closedState: $closedState");
+
+            if("ALLOCATED" == closedState){
+
+                throw Exception("Block Trade is already allocated")
+            }
+
+            addInputState(inputState)
+
+            val outputBeforeState = createExecutionState(allocationPrimitive.after.originalTrade.execution)
+
+            val outputAfterStates = allocationPrimitive.after.allocatedTrade.map { createExecutionStateFromAfterAllocation(it.execution, executionLineage) }
+
+            val outputIndexOnBefore = this.addOutputStateReturnIndex(outputBeforeState, CDMEvent.ID)
+            addCommand(CDMEvent.Commands.Execution(outputIndexOnBefore), outputBeforeState.participants.map { it.owningKey }.toSet().toList())
+
+            outputAfterStates.forEach {
+                val outputIndexOnAfter = this.addOutputStateReturnIndex(it, CDMEvent.ID)
+                addCommand(CDMEvent.Commands.Allocation(outputIndexOnAfter), it.participants.map { p -> p.owningKey }.toSet().toList())
             }
         }
     }

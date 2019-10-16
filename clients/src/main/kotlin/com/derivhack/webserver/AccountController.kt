@@ -15,8 +15,11 @@ import net.corda.cdmsupport.states.WalletState
 import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.utilities.getOrThrow
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpRequest
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import javax.json.Json
+import javax.json.JsonObject
 
 /**
  * Define your API endpoints here.
@@ -47,10 +50,10 @@ class AccountController(rpc: NodeRPCConnection) {
     }
 
     @PostMapping(value = ["/api/settlement"])
-    private fun settlement(@RequestParam reference: String): ResponseEntity<Any> {
+    private fun settlement(@RequestBody request: executionRequest): ResponseEntity<Any> {
 
         val (status,message) = try {
-            val tx = proxy.startFlowDynamic(SettlementFlow::class.java, reference)
+            val tx = proxy.startFlowDynamic(SettlementFlow::class.java, request.executionRef)
             val result = tx.returnValue.getOrThrow();
             CREATED to "Transaction with id: ${result.id} created"
         }catch(e :Exception) {
@@ -61,10 +64,10 @@ class AccountController(rpc: NodeRPCConnection) {
     }
 
     @PostMapping(value = ["/api/transfer"])
-    private fun transfer(@RequestParam reference: String): ResponseEntity<Any> {
+    private fun transfer(@RequestBody request: executionRequest): ResponseEntity<Any> {
 
         val (status,message) = try {
-            val tx = proxy.startFlowDynamic(TransferFlow::class.java, reference)
+            val tx = proxy.startFlowDynamic(TransferFlow::class.java, request.executionRef)
             val result = tx.returnValue.getOrThrow();
             CREATED to "Transaction with id: ${result.id} created"
         }catch(e :Exception) {
@@ -75,10 +78,10 @@ class AccountController(rpc: NodeRPCConnection) {
     }
 
     @PostMapping(value = ["/api/confirmation"])
-    private fun confirmation(@RequestParam executionRef: String): ResponseEntity<Any> {
+    private fun confirmation(@RequestBody request: executionRequest): ResponseEntity<Any> {
 
         val (status,message) = try {
-            val tx = proxy.startFlowDynamic(ConfirmationFlow::class.java, executionRef)
+            val tx = proxy.startFlowDynamic(ConfirmationFlow::class.java, request.executionRef)
             val result = tx.returnValue.getOrThrow();
 
             CREATED to "Confirmation with the id: ${result.id}"
@@ -89,15 +92,19 @@ class AccountController(rpc: NodeRPCConnection) {
     }
 
     @PostMapping(value = ["/api/affirmation"])
-    private fun affirmation(@RequestParam executionRef: String): ResponseEntity<Any> {
+    private fun affirmation(@RequestBody request: executionRequest): ResponseEntity<Any> {
         val (status,message) = try {
-            val tx = proxy.startFlowDynamic(AffirmationFlow::class.java, executionRef)
+            val tx = proxy.startFlowDynamic(AffirmationFlow::class.java, request.executionRef)
             val result = tx.returnValue.getOrThrow();
+            println(">>>>>>>>>>>>>>>>>>");
             CREATED to "Affirmed with the id: ${result.id}"
         }catch(e :Exception) {
             BAD_REQUEST to e.message
         }
         return ResponseEntity.status(status.statusCode).body(message)
+    }
+
+    data class executionRequest(val executionRef: String) {
     }
 
     @GetMapping(value = ["/api/getAccounts"])

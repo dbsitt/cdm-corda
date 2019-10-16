@@ -67,7 +67,7 @@ task runTemplateClient(type: JavaExec, dependsOn: assemble) {
 task runServerC1(type: JavaExec, dependsOn: assemble) {
     classpath = sourceSets.main.runtimeClasspath
     main = 'com.derivhack.webserver.ServerKt'
-    args '--server.port=10020', '--config.rpc.host=localhost', '--config.rpc.port=10006', '--config.rpc.username=user1', '--config.rpc.password=test', '--config.sshd.port=2224'
+    args '--server.port=10090', '--config.rpc.host=localhost', '--config.rpc.port=10006', '--config.rpc.username=user1', '--config.rpc.password=test', '--config.sshd.port=2224'
 }
 task runServerC2(type: JavaExec, dependsOn: assemble) {
     classpath = sourceSets.main.runtimeClasspath
@@ -85,10 +85,10 @@ task runServerB1(type: JavaExec, dependsOn: assemble) {
     main = 'com.derivhack.webserver.ServerKt'
     args '--server.port=10050', '--config.rpc.host=localhost', '--config.rpc.port=10009', '--config.rpc.username=user2', '--config.rpc.password=test', '--config.sshd.port=2223'
 }
-task runServerObserver(type: JavaExec, dependsOn: assemble) {
+task runServerCollateralAgent(type: JavaExec, dependsOn: assemble) {
     classpath = sourceSets.main.runtimeClasspath
     main = 'com.derivhack.webserver.ServerKt'
-    args '--server.port=10060', '--config.rpc.host=localhost', '--config.rpc.port=10015', '--config.rpc.username=user4', '--config.rpc.password=test', '--config.sshd.port=2225'
+    args '--server.port=10060', '--config.rpc.host=localhost', '--config.rpc.port=10021', '--config.rpc.username=user8', '--config.rpc.password=test', '--config.sshd.port=2225'
 }
 
 task runServerSA(type: JavaExec, dependsOn: assemble) {

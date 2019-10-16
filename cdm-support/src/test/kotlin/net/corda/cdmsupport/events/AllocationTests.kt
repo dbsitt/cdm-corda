@@ -48,6 +48,11 @@ class AllocationTests : BaseEventTest() {
         assertEquals(listOf(party1.owningKey, party2.owningKey), tx.commands.get(1).signers)
         assertEquals(listOf(party1.owningKey, party2.owningKey), tx.commands.get(2).signers)
 
+        /*
+        val allocationEvent2 = readEventFromJson("/${samplesDirectory}/UC2_allocation_execution_AT1.json")
+        val future2 = node2.services.startFlow(TestFlowInitiating(allocationEvent)).resultFuture
+        val tx2 = future.getOrThrow().toLedgerTransaction(node2.services)
+        */
     }
 
 
