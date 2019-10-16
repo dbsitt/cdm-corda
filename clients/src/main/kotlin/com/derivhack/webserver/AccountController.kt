@@ -124,7 +124,7 @@ class AccountController(rpc: NodeRPCConnection) {
         walletStateData.map {
             logger.info("!!!!! getting the details for ${it}...")
             logger.info(it.party().toString())
-            wallets.add(WalletViewModel(it.walletReference, it.party().account.accountNumber.value,it.party().account.accountName.value,
+            wallets.add(WalletViewModel(it.ownerPartyName, it.walletReference, it.party().account.accountNumber.value,it.party().account.accountName.value,
                     it.money().currency.value,  it.money().amount.toLong()))
         }
 
@@ -138,9 +138,9 @@ class AccountController(rpc: NodeRPCConnection) {
         val walletStates = proxy.vaultQueryBy<WalletState>().states
 
         val wallets : MutableSet<WalletViewModel> = mutableSetOf()
-        wallets.add(WalletViewModel("1", "123", "#CLient123", "USD", 1234566))
-        wallets.add(WalletViewModel("2", "1234", "#CLient124", "USD", 700000))
-        wallets.add(WalletViewModel("3", "1235", "#CLient125", "USD", 800000))
+        wallets.add(WalletViewModel("Part1","1", "123", "#CLient123", "USD", 1234566))
+        wallets.add(WalletViewModel("Party2","2", "1234", "#CLient124", "USD", 700000))
+        wallets.add(WalletViewModel("Party3","3", "1235", "#CLient125", "USD", 800000))
         return wallets.toList()
     }
 
