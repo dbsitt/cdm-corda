@@ -2,22 +2,21 @@ package com.derivhack
 
 import co.paralleluniverse.fibers.Suspendable
 import net.corda.cdmsupport.CDMEvent
+import net.corda.cdmsupport.CollateralInstructions
 import net.corda.cdmsupport.NetIM
 import net.corda.cdmsupport.eventparsing.parseCorllateralInstructionWrapperFromJson
 import net.corda.cdmsupport.eventparsing.serializeCdmObjectIntoJson
 import net.corda.cdmsupport.functions.COLLATERAL_AGENT_STR
 import net.corda.cdmsupport.functions.hashCDM
 import net.corda.cdmsupport.states.DBSPortfolioState
+import net.corda.cdmsupport.states.TransferState
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
 import net.corda.core.identity.Party
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import org.isda.cdm.*
-import org.isda.cdm.metafields.FieldWithMetaString
-import org.isda.cdm.metafields.ReferenceWithMetaExecution
-import org.isda.cdm.metafields.ReferenceWithMetaParty
-import org.isda.cdm.metafields.ReferenceWithMetaTransferPrimitive
+import org.isda.cdm.metafields.*
 import java.math.BigDecimal
 
 @InitiatingFlow
@@ -33,9 +32,13 @@ class CollateralFlow(private val instructionJson: String) : FlowLogic<SignedTran
         val receiverOutput = createPortfolioStateFromClientAndProduct(instruction.clientSegregated, instruction.netIM, instruction.security, false)
         builder.addOutputState(payerOutput)
         builder.addOutputState(receiverOutput)
+
+        val transferEvent = createTransferEventFromInstruction(instruction)
         val allParticipants = mutableSetOf<Party>()
         allParticipants.addAll(payerOutput.participants)
         allParticipants.addAll(receiverOutput.participants)
+        builder.addOutputState(TransferState(serializeCdmObjectIntoJson(transferEvent.primitive.transfer.first()), transferEvent.meta.globalKey, "dummyEventRef", TransferStatusEnum.SETTLED.name, allParticipants.toList()))
+
         builder.addCommand(CDMEvent.Commands.Collateral(), allParticipants.map { it.owningKey })
         builder.setTimeWindow(serviceHub.clock.instant(), Constant.DEFAULT_DURATION)
         builder.verify(serviceHub)
@@ -52,6 +55,38 @@ class CollateralFlow(private val instructionJson: String) : FlowLogic<SignedTran
         subFlow(ObserveryFlow(regulator,finalityTx))
 
         return finalityTx;
+    }
+
+    fun createTransferEventFromInstruction(instruction: CollateralInstructions): Event {
+        val transferBuilder = TransferPrimitive.builder()
+                .addSecurityTransfer(SecurityTransferComponent.builder()
+                        .setTransferorTransferee(TransferorTransferee.builder()
+                                .setTransferorPartyReference(ReferenceWithMetaParty.builder().setValue(instruction.client).build())
+                                .setTransfereePartyReference(ReferenceWithMetaParty.builder().setValue(instruction.clientSegregated).build())
+                                .build())
+                        .setQuantity(instruction.netIM.quantity.amount)
+                        .setSecurity(instruction.security)
+                        .build())
+        val transfer = transferBuilder.setMeta(MetaFields.builder().setGlobalKey(hashCDM(transferBuilder.build())).build()).build()
+        val eventBuilder = Event.builder()
+                .setEventEffect(EventEffect.builder()
+                        .addTransfer(ReferenceWithMetaTransferPrimitive.builder().setGlobalReference(transfer.meta.globalKey).build())
+                        .build())
+                .addEventIdentifier(Identifier.builder()
+//                        .setIssuerReference(ReferenceWithMetaParty.builder()
+//                                .setGlobalReference(instruction.client.meta.globalKey)
+//                                .build())
+                        .addAssignedIdentifier(AssignedIdentifier.builder()
+                                .setIdentifier(FieldWithMetaString.builder()
+                                        .setValue("NZVJ31U4568YT")
+                                        .build())
+                                .build())
+                        .build())
+                .setPrimitive(PrimitiveEvent.builder()
+                        .addTransfer(transfer)
+                        .build())
+
+        return eventBuilder.setMeta(MetaFields.builder().setGlobalKey(hashCDM(eventBuilder.build())).build()).build()
     }
 
     private fun createPortfolioStateFromClientAndProduct(client: org.isda.cdm.Party, netIM: NetIM, security: Security, isPayer: Boolean) : DBSPortfolioState {
