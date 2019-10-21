@@ -35,6 +35,34 @@ class AccountController(rpc: NodeRPCConnection) {
 
     private val proxy = rpc.proxy
 
+    @PostMapping(value = ["/api/book/blocktrade"])
+    private fun bookBlockTrade(@RequestBody blockTradeJson: String): ResponseEntity<Any> {
+        val (status,message) = try {
+            val tx = proxy.startFlowDynamic(ExecutionFlow::class.java, blockTradeJson)
+            val result = tx.returnValue.getOrThrow();
+            logger.info("!!! ${tx.id}");
+            CREATED to "Block Trade booked with id: ${result.id} "
+        }catch(e :Exception) {
+            BAD_REQUEST to e.message
+        }
+        return ResponseEntity.status(status.statusCode).body(message)
+        //return "Wallet is loaded with the Money provided !!!! "
+    }
+
+    @PostMapping(value = ["/api/allocateTrade"])
+    private fun allocateTrade(@RequestBody allocateTradeJson: String): ResponseEntity<Any> {
+        val (status,message) = try {
+            val tx = proxy.startFlowDynamic(AllocationFlow::class.java, allocateTradeJson)
+            val result = tx.returnValue.getOrThrow();
+            logger.info("!!! ${tx.id}");
+            CREATED to "Trade allocated with id: ${result.id}"
+        }catch(e :Exception) {
+            BAD_REQUEST to e.message
+        }
+        return ResponseEntity.status(status.statusCode).body(message)
+        //return "Wallet is loaded with the Money provided !!!! "
+    }
+
     @PostMapping(value = ["/api/loadWallet"])
     private fun execution(@RequestBody moneyJson: String): ResponseEntity<Any> {
         val (status,message) = try {
