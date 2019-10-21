@@ -1,0 +1,11 @@
+{
+  "client" : "Client1",
+  "executingEntity": "Broker1",
+  "counterParty": "Broker2",
+  "buySell": "sell/buy",
+  "product": "DH0371475458/DH1986947194",
+  "price": 99.88,
+  "quantity": 800000,
+  "tradeDate": "2019/10/16",
+  "eventDate": "2019/10/16"
+}
