@@ -2,6 +2,7 @@ package net.corda.cdmsupport.events
 
 import com.derivhack.*
 import net.corda.cdmsupport.CDMEvent
+import net.corda.cdmsupport.CollateralInstructions
 import net.corda.cdmsupport.eventparsing.parseCorllateralInstructionWrapperFromJson
 import net.corda.cdmsupport.eventparsing.readTextFromFile
 import net.corda.cdmsupport.eventparsing.serializeCdmObjectIntoFile
@@ -12,8 +13,7 @@ import net.corda.cdmsupport.states.ExecutionState
 import net.corda.core.utilities.getOrThrow
 import net.corda.testing.node.internal.startFlow
 import org.isda.cdm.*
-import org.isda.cdm.metafields.MetaFields
-import org.isda.cdm.metafields.ReferenceWithMetaExecution
+import org.isda.cdm.metafields.*
 import org.junit.Test
 import java.math.BigDecimal
 import kotlin.test.assertEquals
@@ -22,13 +22,25 @@ import kotlin.test.assertTrue
 
 class TransferTestGJ : BaseEventTestGJ() {
 
-        val outputDir = TransferTestGJ::class.java.getResource("/out/").path
-//    val outputDir = "C:\\Users\\CongCuong\\Downloads\\outputTest\\"
+//        val outputDir = TransferTestGJ::class.java.getResource("/out/").path
+    val outputDir = "C:\\Users\\CongCuong\\Downloads\\outputTest\\"
 
     @Test
     fun transfer() {
         //sendNewTradeInAndCheckAssertionsGJ("UC1_block_execute_BT1_GJ.json")
-        val jsonText1 = readTextFromFile("/${samplesDirectory}/UC1_block_execute_BT1_GJ.json");
+        val jsonText1 = """
+            {
+              "client" : "Client1",
+              "executingEntity": "Broker1",
+              "counterParty": "Broker2",
+              "buySell": "buy",
+              "product": "DH0371475458",
+              "price": 99.88,
+              "quantity": 800000,
+              "tradeDate": "2019/10/16",
+              "eventDate": "2019/10/16"
+            }
+            """.trimIndent()
         val future1 = node2.services.startFlow(ExecutionFlow(jsonText1)).resultFuture
         val tx1 = future1.getOrThrow().toLedgerTransaction(node2.services)
         val tx1ExecutionState = tx1.outputStates.first() as ExecutionState
@@ -56,7 +68,7 @@ class TransferTestGJ : BaseEventTestGJ() {
         serializeCdmObjectIntoFile(exeEvent, "${outputDir}/uc1_out.json")
 
         //----------------allocation
-        val jsonText2 = readTextFromFile("/${samplesDirectory}/UC2_allocation_execution_AT1_GJ.json")
+        val jsonText2 = "{\"executionRef\": \"$executionRef\",\"amount1\": 320000,\"amount2\": 480000}"
         val future2 = node2.services.startFlow(AllocationFlow(jsonText2)).resultFuture
         val tx2 = future2.getOrThrow().toLedgerTransaction(node2.services)
         checkTheBasicFabricOfTheTransaction(tx2, 1, 3, 0, 3)
@@ -166,7 +178,7 @@ class TransferTestGJ : BaseEventTestGJ() {
         val uc7Future = node6.services.startFlow(CollateralFlow(instructedJson)).resultFuture
         val uc7Transaction = uc7Future.getOrThrow().toLedgerTransaction(node6.services)
         val uc7Portfolios = uc7Transaction.outputStates.filterIsInstance<DBSPortfolioState>()
-        checkTheBasicFabricOfTheTransaction(uc7Transaction, 0, 2, 0, 1)
+        checkTheBasicFabricOfTheTransaction(uc7Transaction, 0, 3, 0, 1)
         val party1Portfolio = mutableListOf<DBSPortfolioState>()
         party1Portfolio.addAll(transferB2CPortfolios.filter { it.portfolio().aggregationParameters.party.first().value.partyId.first().value == client1SubAcc.first().value })
         party1Portfolio.addAll(uc7Portfolios.filter { it.portfolio().aggregationParameters.party.first().value.partyId.first().value == client1SubAcc.first().value })
@@ -175,8 +187,30 @@ class TransferTestGJ : BaseEventTestGJ() {
         party1SegregatedPortfolio.addAll(transferB2CPortfolios.filter { it.portfolio().aggregationParameters.party.first().value.partyId.first().value == client1SegregatedAcc.first().value })
         party1SegregatedPortfolio.addAll(uc7Portfolios.filter { it.portfolio().aggregationParameters.party.first().value.partyId.first().value == client1SegregatedAcc.first().value })
 
-        serializeCdmObjectIntoFile(generateFinalPortfolio(party1Portfolio), "${outputDir}/uc7_portfolio1.json")
-        serializeCdmObjectIntoFile(generateFinalPortfolio(party1SegregatedPortfolio), "${outputDir}/uc7_portfolio2.json")
+        val transferEvent = createTransferEventFromInstruction(instruction.collateralInstructions)
+        serializeCdmObjectIntoFile(generateFinalPortfolio(party1Portfolio,transferEvent), "${outputDir}/UC7_Client_Portfolio_After.json")
+        serializeCdmObjectIntoFile(transferEvent, "${outputDir}/UC7_Collateral_Event.json")
+        serializeCdmObjectIntoFile(generateFinalPortfolio(party1SegregatedPortfolio, transferEvent), "${outputDir}/UC7_Segregated_Portfolio_After.json")
+    }
+
+    private fun generateFinalPortfolio(clientPortfolioStates: List<DBSPortfolioState>, event: Event): Portfolio {
+        var balance = BigDecimal.ZERO
+
+        for (portfolioState in clientPortfolioStates) {
+            balance = balance.add(portfolioState.portfolio().portfolioState.positions.first().quantity.amount)
+        }
+        val product = clientPortfolioStates.first().portfolio().portfolioState.positions.first().product
+        val builder = clientPortfolioStates.first().portfolio().toBuilder()
+        builder.portfolioState.lineage.clearEventReference().clearExecutionReference().clearTransferReference()
+        builder.portfolioState.lineage
+                .addEventReference(ReferenceWithMetaEvent.builder().setGlobalReference(event.meta.globalKey).build())
+                .addTransferReference(ReferenceWithMetaTransferPrimitive.builder().setGlobalReference(event.primitive.transfer.first().meta.globalKey).build())
+        builder.portfolioState.clearPositions()
+        builder.portfolioState.addPositions(Position.builder()
+                .setQuantity(Quantity.builder().setAmount(balance).build())
+                .setProduct(product)
+                .build())
+        return builder.build()
     }
 
     private fun createEventFromTransferPrimitive(transferPrimitive: TransferPrimitive, executionRef: String): Event {
@@ -196,23 +230,39 @@ class TransferTestGJ : BaseEventTestGJ() {
 //            exeEventBuilder.addParty(party.value)
 //        }
         return exeEventBuilder.setMeta(MetaFields.builder().setGlobalKey(hashCDM(exeEventBuilder.build())).build()).build()
+
     }
 
-    private fun generateFinalPortfolio(clientPortfolioStates: List<DBSPortfolioState>): Portfolio {
-        var balance = BigDecimal.ZERO
+    private fun createTransferEventFromInstruction(instruction: CollateralInstructions): Event {
+        val transferBuilder = TransferPrimitive.builder()
+                .addSecurityTransfer(SecurityTransferComponent.builder()
+                        .setTransferorTransferee(TransferorTransferee.builder()
+                                .setTransferorPartyReference(ReferenceWithMetaParty.builder().setValue(instruction.client).build())
+                                .setTransfereePartyReference(ReferenceWithMetaParty.builder().setValue(instruction.clientSegregated).build())
+                                .build())
+                        .setQuantity(instruction.netIM.quantity.amount)
+                        .setSecurity(instruction.security)
+                        .build())
+        val transfer = transferBuilder.setMeta(MetaFields.builder().setGlobalKey(hashCDM(transferBuilder.build())).build()).build()
+        val eventBuilder = Event.builder()
+                .setEventEffect(EventEffect.builder()
+                        .addTransfer(ReferenceWithMetaTransferPrimitive.builder().setGlobalReference(transfer.meta.globalKey).build())
+                        .build())
+                .addEventIdentifier(Identifier.builder()
+//                        .setIssuerReference(ReferenceWithMetaParty.builder()
+//                                .setGlobalReference(instruction.client.meta.globalKey)
+//                                .build())
+                        .addAssignedIdentifier(AssignedIdentifier.builder()
+                                .setIdentifier(FieldWithMetaString.builder()
+                                        .setValue("NZVJ31U4568YT")
+                                        .build())
+                                .build())
+                        .build())
+                .setPrimitive(PrimitiveEvent.builder()
+                        .addTransfer(transfer)
+                        .build())
 
-        for (portfolioState in clientPortfolioStates) {
-            balance = balance.add(portfolioState.portfolio().portfolioState.positions.first().quantity.amount)
-        }
-        val product = clientPortfolioStates.first().portfolio().portfolioState.positions.first().product
-        val builder = clientPortfolioStates.first().portfolio().toBuilder()
-
-        builder.portfolioState.clearPositions()
-        builder.portfolioState.addPositions(Position.builder()
-                .setQuantity(Quantity.builder().setAmount(balance).build())
-                .setProduct(product)
-                .build())
-        return builder.build()
+        return eventBuilder.setMeta(MetaFields.builder().setGlobalKey(hashCDM(eventBuilder.build())).build()).build()
     }
 
 }

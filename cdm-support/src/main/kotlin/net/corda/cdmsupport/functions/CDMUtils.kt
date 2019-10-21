@@ -1,11 +1,12 @@
 package net.corda.cdmsupport.functions
 
 import com.rosetta.model.lib.RosettaModelObject
+import com.rosetta.model.lib.records.Date
+import com.rosetta.model.lib.records.DateImpl
+import net.corda.cdmsupport.ExecutionRequest
 import net.corda.cdmsupport.states.ExecutionState
 import org.isda.cdm.*
-import org.isda.cdm.metafields.FieldWithMetaString
-import org.isda.cdm.metafields.MetaFields
-import org.isda.cdm.metafields.ReferenceWithMetaParty
+import org.isda.cdm.metafields.*
 import org.isda.cdm.rosettakey.SerialisingHashFunction
 import java.lang.StringBuilder
 import java.math.BigDecimal
@@ -13,6 +14,11 @@ import java.util.Random
 
 const val SETTLEMENT_AGENT_STR = "SettlementAgent"
 const val COLLATERAL_AGENT_STR = "CollateralAgent"
+const val CLIENT1_STR = "Client1"
+const val CLIENT2_STR = "Client2"
+const val CLIENT3_STR = "Client3"
+const val BROKER1_STR = "Broker1"
+const val BROKER2_STR = "Broker2"
 const val CHAR_STR = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 fun generateIdentifier(issuer: ReferenceWithMetaParty, value: String): Identifier {
@@ -92,4 +98,102 @@ fun generateMoney(amount: BigDecimal): Money{
             .setAmount(amount)
             .setCurrency(FieldWithMetaString.builder().setValue("USD").build())
             .build()
+}
+
+fun generatePartyRole(partyRef: String, role: PartyRoleEnum): PartyRole {
+    return PartyRole.builder()
+            .setPartyReference(ReferenceWithMetaParty.builder()
+                    .setGlobalReference(partyRef)
+                    .build())
+            .setRole(role)
+            .build()
+}
+
+fun toCDMDate(str: String): Date {
+    val items = str.split("/")
+    return DateImpl(items[2].toInt(),items[1].toInt(), items[0].toInt())
+}
+
+fun createEvent(request: ExecutionRequest) : Event {
+    val partyMap = mapOf(CLIENT1_STR to AgentHolder.client1, CLIENT2_STR to AgentHolder.client2, CLIENT3_STR to AgentHolder.client3, BROKER1_STR to AgentHolder.broker1, BROKER2_STR to AgentHolder.broker2)
+    val client = partyMap[request.client]!!
+    val executingEntity = partyMap[request.executingEntity]!!
+    val counterParty = partyMap[request.counterParty]!!
+    val roleList = mutableListOf(
+            generatePartyRole(client.meta.globalKey, PartyRoleEnum.CLIENT),
+            generatePartyRole(executingEntity.meta.globalKey, PartyRoleEnum.EXECUTING_ENTITY),
+            generatePartyRole(counterParty.meta.globalKey, PartyRoleEnum.COUNTERPARTY)
+    )
+    if (request.buySell == "buy") {
+        roleList.add(generatePartyRole(client.meta.globalKey, PartyRoleEnum.BUYER))
+        roleList.add(generatePartyRole(executingEntity.meta.globalKey, PartyRoleEnum.BUYER))
+        roleList.add(generatePartyRole(counterParty.meta.globalKey, PartyRoleEnum.SELLER))
+    } else {
+        roleList.add(generatePartyRole(client.meta.globalKey, PartyRoleEnum.SELLER))
+        roleList.add(generatePartyRole(executingEntity.meta.globalKey, PartyRoleEnum.SELLER))
+        roleList.add(generatePartyRole(counterParty.meta.globalKey, PartyRoleEnum.BUYER))
+    }
+
+    val executionBuilder = Execution.builder()
+            .setPrice(Price.builder()
+                    .setNetPrice(ActualPrice.builder()
+                            .setAmount(BigDecimal.valueOf(request.price))
+                            .setCurrency(FieldWithMetaString.builder().setValue("USD").build())
+                            .build())
+
+                    .build())
+            .setProduct(Product.builder()
+                    .setSecurity(Security.builder()
+                            .setBond(Bond.builder()
+                                    .setProductIdentifier(ProductIdentifier.builder()
+                                            .setSource(ProductIdSourceEnum.CUSIP)
+                                            .addIdentifier(FieldWithMetaString.builder().setValue(request.product).build())
+                                            .build())
+                                    .build())
+                            .build())
+                    .build())
+            .setQuantity(Quantity.builder().setAmount(BigDecimal.valueOf(request.quantity)).build())
+            .addIdentifier(generateIdentifier(ReferenceWithMetaParty.builder().setGlobalReference(executingEntity.meta.globalKey).build(), "W3S0XZGEM4S82"))
+            .setSettlementTerms(SettlementTerms.builder()
+                    .setSettlementAmount(Money.builder()
+                            .setCurrency(FieldWithMetaString.builder().setValue("USD").build())
+                            .setAmount(BigDecimal.valueOf(request.price).multiply(BigDecimal.valueOf(request.quantity)).divide(BigDecimal.valueOf(100)))
+                            .build())
+                    .setSettlementDate(AdjustableOrRelativeDate.builder()
+                            .setAdjustableDate(AdjustableDate.builder()
+                                    //TODO change to T+1 day
+                                    .setUnadjustedDate(toCDMDate(request.eventDate))
+                                    .build())
+                            .build())
+                    .build())
+            .setTradeDate(FieldWithMetaDate.builder().setValue(toCDMDate(request.tradeDate)).build())
+    for (role in roleList) {
+        executionBuilder.addPartyRole(role)
+    }
+
+    val execution = executionBuilder.setMeta(MetaFields.builder().setGlobalKey(hashCDM(executionBuilder.build())).build()).build()
+
+    val eventBuilder =  Event.builder()
+            .setEventDate(toCDMDate(request.tradeDate))
+            .addParty(client)
+            .addParty(executingEntity)
+            .addParty(counterParty)
+            .setPrimitive(PrimitiveEvent.builder()
+                    .addExecution(ExecutionPrimitive.builder()
+                            .setAfter(org.isda.cdm.ExecutionState.builder()
+                                    .setExecution(execution)
+                                    .build())
+                            .build())
+
+                    .build())
+            .setEventEffect(EventEffect.builder()
+                    .addEffectedExecution(ReferenceWithMetaExecution.builder()
+                            .setGlobalReference(execution.meta.globalKey)
+                            .build())
+                    .build())
+            .addEventIdentifier(Identifier.builder()
+                    .setIssuerReference(ReferenceWithMetaParty.builder().setGlobalReference(executingEntity.meta.globalKey).build())
+                    .build())
+
+    return eventBuilder.setMeta(MetaFields.builder().setGlobalKey(hashCDM(eventBuilder.build())).build()).build()
 }

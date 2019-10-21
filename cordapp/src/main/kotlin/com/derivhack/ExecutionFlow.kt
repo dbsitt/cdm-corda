@@ -1,7 +1,8 @@
 package com.derivhack
 
 import co.paralleluniverse.fibers.Suspendable
-import net.corda.cdmsupport.eventparsing.parseEventFromJson
+import net.corda.cdmsupport.eventparsing.parseExecutionRequestFromJson
+import net.corda.cdmsupport.functions.*
 import net.corda.cdmsupport.transactionbuilding.CdmTransactionBuilder
 import net.corda.cdmsupport.vaultquerying.DefaultCdmVaultQuery
 import net.corda.core.contracts.requireThat
@@ -10,26 +11,13 @@ import net.corda.core.transactions.SignedTransaction
 
 @InitiatingFlow
 @StartableByRPC
-class ExecutionFlow(val executionJson: String) : FlowLogic<SignedTransaction>() {
-
-    //TODO
-    /**
-     *  You're expected to convert trades from CDM representation to work towards Corda by loading
-     *  the JSON file for the execution event provided for the Use Case 1 (UC1_block_execute_BT1.json),
-     *  and using the parseEventFromJson function from the cdm-support package to
-     *  create an Execution CDM Object and Execution State working with the CDMTransactionBuilder as well
-     *  as also validate the trade against CDM data rules by using the CDMValidators.
-     *
-     *  Add an Observery mode to the transaction
-     */
-
+class ExecutionFlow(val jsonRequest: String) : FlowLogic<SignedTransaction>() {
 
     @Suspendable
     override fun call():SignedTransaction {
 
-
-
-        val evt = parseEventFromJson(executionJson)
+        val request = parseExecutionRequestFromJson(jsonRequest)
+        val evt = createEvent(request)
 
         //get notary
         val notary = serviceHub.networkMapCache.notaryIdentities.first()
@@ -63,32 +51,11 @@ class ExecutionFlow(val executionJson: String) : FlowLogic<SignedTransaction>() 
         subFlow(ObserveryFlow(regulator,finalityTx))
 
         return finalityTx
-
-        //val rosettaObjectMapper = RosettaObjectMapper.getDefaultRosettaObjectMapper()
-        //val exe = rosettaObjectMapper.readValue<org.isda.cdm.Execution>(executionJson, org.isda.cdm.Execution::class.java)
-
-        /*
-        val exeStt:ExecutionState = ExecutionState(executionJson,"","",ArrayList<Party>());
-
-        val exe = exeStt.execution()
-        exe.createExecutionWithPartiesFromEvent(evt)
-
-        //val exe:Execution = Execution.builder().build().createExecutionWithPartiesFromEvent(evt);
-
-        val validators = CdmValidators()
-        validators.validateExecution(exe)
-
-
-
-        val outputIndex = transactionBuilder.addOutputStateReturnIndex(exeStt,CDMEvent.ID)
-        val exeCmd = CDMEvent.Commands.Execution(outputIndex)
-        transactionBuilder.addCommand(exeCmd)
-
-        val signedTrans = serviceHub.signInitialTransaction(transactionBuilder)
-        subFlow(ObserveryFlow(ourIdentity,signedTrans))
-        */
     }
+
+
 }
+
 
 @InitiatedBy(ExecutionFlow::class)
 class ExecutionFlowInitiated(val flowSession: FlowSession) : FlowLogic<SignedTransaction>(){

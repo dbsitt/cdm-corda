@@ -16,6 +16,8 @@ fun allocationBuilderFromExecution(amount1: BigDecimal, amount2: BigDecimal, sta
     val counterParty = extractParty(state, PartyRoleEnum.COUNTERPARTY)
     val trade1 = generateTrade(amount1, state.execution(), client.value)
     val trade2 = generateTrade(amount2, state.execution(), client.value)
+    val executionWithoutPartyBuilder = state.execution().toBuilder()
+    val executionWithoutParty = executionWithoutPartyBuilder.clearParty().build()
     var allocation = Event.builder()
             .setAction(ActionEnum.NEW)
             .setEventEffect(EventEffect.builder()
@@ -38,9 +40,9 @@ fun allocationBuilderFromExecution(amount1: BigDecimal, amount2: BigDecimal, sta
                                     .setAfter(AllocationOutcome.builder()
                                             .addAllocatedTrade(trade1)
                                             .addAllocatedTrade(trade2)
-                                            .setOriginalTrade(Trade.builder().setExecution(state.execution()).build())
+                                            .setOriginalTrade(Trade.builder().setExecution(executionWithoutParty).build())
                                             .build())
-                                    .setBefore(Trade.builder().setExecution(state.execution()).build())
+                                    .setBefore(Trade.builder().setExecution(executionWithoutParty).build())
                                     .build()
                     )
                     .build())
@@ -74,8 +76,8 @@ fun allocationBuilderFromExecution(amount1: Execution, amount2: Execution,  stat
                             .build())
                     .build())
             .addParty(client.value)
-            .addParty(counterParty.value)
             .addParty(broker.value)
+            .addParty(counterParty.value)
             .setPrimitive(PrimitiveEvent.builder()
                     .addAllocation(
                             AllocationPrimitive.builder()
@@ -109,12 +111,12 @@ private fun generateTrade(amount: BigDecimal, execution: Execution, party: Party
             .setSettlementTerms(settlementTerms)
 
     //        keep counter party and executing entity
-    val client = execution.partyRole.stream().filter { role -> role.role == PartyRoleEnum.CLIENT }.findFirst().orElseThrow { IllegalStateException("Should have client role here") }
-    execution.partyRole.stream().filter { partyRole -> partyRole.partyReference.globalReference != client.partyReference.globalReference }
+//    val client = execution.partyRole.stream().filter { role -> role.role == PartyRoleEnum.CLIENT }.findFirst().orElseThrow { IllegalStateException("Should have client role here") }
+    execution.partyRole.stream()
             .forEach { executionBuilder.addPartyRole(it) }
 
-    executionBuilder.addPartyRole(PartyRole.builder().setRole(PartyRoleEnum.BUYER).setPartyReference(ReferenceWithMetaParty.builder().setGlobalReference(party.meta.globalKey).build()).build())
-    executionBuilder.addPartyRole(PartyRole.builder().setRole(PartyRoleEnum.CLIENT).setPartyReference(ReferenceWithMetaParty.builder().setGlobalReference(party.meta.globalKey).build()).build())
+//    executionBuilder.addPartyRole(PartyRole.builder().setRole(PartyRoleEnum.BUYER).setPartyReference(ReferenceWithMetaParty.builder().setGlobalReference(party.meta.globalKey).build()).build())
+//    executionBuilder.addPartyRole(PartyRole.builder().setRole(PartyRoleEnum.CLIENT).setPartyReference(ReferenceWithMetaParty.builder().setGlobalReference(party.meta.globalKey).build()).build())
     if (globalKey.isBlank())
         executionBuilder.setMeta(MetaFields.builder().setGlobalKey(hashCDM(executionBuilder.build())).build())
     else

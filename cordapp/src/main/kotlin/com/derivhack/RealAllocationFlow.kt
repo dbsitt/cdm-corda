@@ -30,6 +30,8 @@ class RealAllocationFlow(val executionRef: String) : FlowLogic<SignedTransaction
 
     @Suspendable
     override fun call(): SignedTransaction {
+
+
         val statesAndRef = serviceHub.vaultService.queryBy<ExecutionState>().states
         val stateAndRef = statesAndRef.first { it.state.data.execution().meta.globalKey == executionRef }
 

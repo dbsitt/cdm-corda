@@ -1,7 +1,11 @@
 package com.derivhack
 
 import co.paralleluniverse.fibers.Suspendable
+import net.corda.cdmsupport.eventparsing.parseAllocationRequestFromJson
 import net.corda.cdmsupport.eventparsing.parseEventFromJson
+import net.corda.cdmsupport.eventparsing.serializeCdmObjectIntoJson
+import net.corda.cdmsupport.functions.allocationBuilderFromExecution
+import net.corda.cdmsupport.states.ExecutionState
 import net.corda.cdmsupport.transactionbuilding.CdmTransactionBuilder
 import net.corda.cdmsupport.validators.CdmValidators
 
@@ -9,7 +13,9 @@ import net.corda.cdmsupport.vaultquerying.DefaultCdmVaultQuery
 
 import net.corda.core.contracts.requireThat
 import net.corda.core.flows.*
+import net.corda.core.node.services.queryBy
 import net.corda.core.transactions.SignedTransaction
+import java.math.BigDecimal
 import java.util.function.Consumer
 
 
@@ -31,7 +37,18 @@ class AllocationFlow(val allocationJson: String) : FlowLogic<SignedTransaction>(
     @Suspendable
     override fun call(): SignedTransaction {
 
-        val evt = parseEventFromJson(allocationJson)
+//        val evt = parseEventFromJson(allocationJson)
+        val allocationRequest = parseAllocationRequestFromJson(allocationJson)
+        val statesAndRef = serviceHub.vaultService.queryBy<ExecutionState>().states
+        val stateAndRef = statesAndRef.first { it.state.data.execution().meta.globalKey == allocationRequest.executionRef }
+
+        val state = stateAndRef.state.data
+
+        val evt = allocationBuilderFromExecution(BigDecimal.valueOf(allocationRequest.amount1), BigDecimal.valueOf(allocationRequest.amount2), state)
+
+        println(serializeCdmObjectIntoJson(evt))
+        println("--------------------------------------allocation")
+//        logger.info(serializeCdmObjectIntoJson(allocation))
 
         //get notary
         val notary = serviceHub.networkMapCache.notaryIdentities.first()
