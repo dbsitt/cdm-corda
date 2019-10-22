@@ -29,9 +29,9 @@ class TransferTestGJ : BaseEventTestGJ() {
     fun transfer() {
         //sendNewTradeInAndCheckAssertionsGJ("UC1_block_execute_BT1_GJ.json")
         val jsonText1 = """
-            {"client":"Client1",
-            "executingEntity":"Broker1",
-            "counterParty":"Broker2",
+            {"client":"Client1_ACT#2",
+            "executingEntity":"Broker1_ACT#0",
+            "counterParty":"Broker2_ACT#0",
             "buySell":"buy",
             "product":"DH0371475458",
             "price":98,
@@ -66,7 +66,7 @@ class TransferTestGJ : BaseEventTestGJ() {
         serializeCdmObjectIntoFile(exeEvent, "${outputDir}/uc1_out.json")
 
         //----------------allocation
-        val jsonText2 = "{\"executionRef\": \"$executionRef\",\"amount1\": 120000,\"amount2\": 80000}"
+        val jsonText2 = "{\"executionRef\": \"$executionRef\",\"amount1\": 120000,\"amount2\": 80000, \"subAccount1\" : \"Client1_ACT#1\", \"subAccount2\": \"Client1_ACT#0\"}"
         val future2 = node2.services.startFlow(AllocationFlow(jsonText2)).resultFuture
         val tx2 = future2.getOrThrow().toLedgerTransaction(node2.services)
         checkTheBasicFabricOfTheTransaction(tx2, 1, 3, 0, 3)

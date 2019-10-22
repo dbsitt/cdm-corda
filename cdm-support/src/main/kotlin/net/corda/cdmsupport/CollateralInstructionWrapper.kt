@@ -12,4 +12,4 @@ data class NetIM(val quantity: Quantity)
 
 data class ExecutionRequest(val client: String, val executingEntity: String, val counterParty: String, val product: String, val quantity: Long, val price: Double, val tradeDate: String, val eventDate: String, val buySell: String)
 
-data class AllocationRequest(val executionRef: String, val amount1: Long, val amount2: Long)
+data class AllocationRequest(val executionRef: String, val amount1: Long, val amount2: Long, val subAccount1: String, val subAccount2: String)

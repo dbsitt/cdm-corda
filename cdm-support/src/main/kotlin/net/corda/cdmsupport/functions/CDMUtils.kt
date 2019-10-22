@@ -75,12 +75,12 @@ fun extractPartyRole(state: ExecutionState, roleEnum: PartyRoleEnum): PartyRole 
     return state.execution().partyRole.first { it.role == roleEnum }
 }
 
-fun generateParty(accountName: String): Party {
-    val partyIdRandomStr = generateNameKey()
-    val partyId = "${accountName}_ID#0_$partyIdRandomStr"
+fun generateParty(partyName: String, accountName: String = "", hash: String = ""): Party {
+    val partyIdRandomStr = if (hash.isBlank()) hash else generateNameKey()
+    val partyId = "${partyName}_ID#0_$partyIdRandomStr"
     val accountBuilder = Account.builder()
-            .setAccountName(FieldWithMetaString.builder().setValue(accountName).build())
-            .setAccountNumber(FieldWithMetaString.builder().setValue("$accountName#AccNumber").build())
+            .setAccountName(FieldWithMetaString.builder().setValue(partyName).build())
+            .setAccountNumber(FieldWithMetaString.builder().setValue("$partyName#AccNumber").build())
 
     val account = accountBuilder.setMeta(MetaFields.builder().setGlobalKey(hashCDM(accountBuilder.build())).build()).build()
     var party = Party.builder()
@@ -115,7 +115,11 @@ fun toCDMDate(str: String): Date {
 }
 
 fun createEvent(request: ExecutionRequest) : Event {
-    val partyMap = mapOf(CLIENT1_STR to AgentHolder.client1, CLIENT2_STR to AgentHolder.client2, CLIENT3_STR to AgentHolder.client3, BROKER1_STR to AgentHolder.broker1, BROKER2_STR to AgentHolder.broker2)
+    val partyMap = listOf(AgentHolder.client1ACT0, AgentHolder.client1ACT1, AgentHolder.client1ACT2,
+            AgentHolder.client2ACT0, AgentHolder.client2ACT1, AgentHolder.client2ACT2,
+            AgentHolder.client3ACT0, AgentHolder.client3ACT1, AgentHolder.client3ACT2,
+            AgentHolder.broker1, AgentHolder.broker2).map { it.account.accountName.value to it }.toMap()
+
     val client = partyMap[request.client]!!
     val executingEntity = partyMap[request.executingEntity]!!
     val counterParty = partyMap[request.counterParty]!!
