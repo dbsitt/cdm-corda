@@ -78,7 +78,7 @@ class FullFlowTest : BaseEventTestGJ() {
 
     private fun testExecution(blockFileName: String, executingEntity: TestStartedNode): ExecutionState {
         val jsonText1 = readTextFromFile("/${samplesDirectory}/${blockFileName}")
-        val future1 = executingEntity.services.startFlow(ExecutionFlow(jsonText1)).resultFuture
+        val future1 = executingEntity.services.startFlow(ExecutionFlowJson(jsonText1)).resultFuture
         val tx1 = future1.getOrThrow().toLedgerTransaction(executingEntity.services)
         val tx1ExecutionState = tx1.outputStates.first() as ExecutionState
         assertEquals(tx1ExecutionState.workflowStatus, "EXECUTED")
@@ -109,7 +109,7 @@ class FullFlowTest : BaseEventTestGJ() {
     private fun testAllocation(tx1ExecutionState: ExecutionState, allocationFile: String, executingEntity: TestStartedNode): List<String> {
         val executionRef = tx1ExecutionState.execution().meta.globalKey
         val jsonText2 = readTextFromFile("/${samplesDirectory}/${allocationFile}")
-        val future2 = executingEntity.services.startFlow(AllocationFlow(jsonText2)).resultFuture
+        val future2 = executingEntity.services.startFlow(AllocationFlowJson(jsonText2)).resultFuture
         val tx2 = future2.getOrThrow().toLedgerTransaction(executingEntity.services)
         checkTheBasicFabricOfTheTransaction(tx2, 1, 3, 0, 3)
         val allocExecutionB2B =  tx2.outputStates.filterIsInstance<ExecutionState>().filter { it.execution().meta.globalKey!= executionRef}
