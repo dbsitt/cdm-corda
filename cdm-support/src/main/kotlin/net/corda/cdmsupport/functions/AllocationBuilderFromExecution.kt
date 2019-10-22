@@ -98,7 +98,7 @@ fun allocationBuilderFromExecution(amount1: Execution, amount2: Execution,  stat
 
 
 private fun generateTrade(amount: BigDecimal, execution: Execution, party: Party, globalKey: String = ""): Trade {
-    val settlementAmount = amount.multiply(execution.price.netPrice.amount)
+    val settlementAmount = amount.multiply(execution.price.netPrice.amount).divide(BigDecimal.valueOf(100))
     val settlementTerms = execution.settlementTerms.toBuilder().setSettlementAmount(Money.builder().setAmount(settlementAmount).build()).build()
     val executionBuilder = Execution.builder()
             .setExecutionType(ExecutionTypeEnum.ELECTRONIC)
