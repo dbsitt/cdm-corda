@@ -1,6 +1,7 @@
 package com.derivhack.webserver
 
 import com.derivhack.AllocationFlow
+import com.derivhack.AllocationFlowJson
 import com.derivhack.webserver.models.ExecutionViewModel2
 import net.corda.cdmsupport.states.ExecutionState
 import net.corda.core.messaging.vaultQueryBy
@@ -31,7 +32,7 @@ class AllocationControllerExt (rpc: NodeRPCConnection)  {
     private fun allocation(@RequestBody allocationJson: String): ResponseEntity<Any> {
 
         val (status,message) = try {
-            val tx = proxy.startFlowDynamic(AllocationFlow::class.java, allocationJson)
+            val tx = proxy.startFlowDynamic(AllocationFlowJson::class.java, allocationJson)
             val result = tx.returnValue.getOrThrow();
             CREATED to "Transaction with id: ${result.id} created"
         }catch (e:Exception){
