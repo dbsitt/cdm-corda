@@ -2,6 +2,7 @@ package com.derivhack.webserver
 
 
 import com.derivhack.ExecutionFlow
+import com.derivhack.ExecutionFlowJson
 
 import com.derivhack.webserver.models.ExecutionViewModel2
 
@@ -40,7 +41,7 @@ class ExecutionControllerExt (rpc: NodeRPCConnection) {
     private fun execution(@RequestBody executionJson: String): ResponseEntity<Any> {
 
         val (status,message) = try {
-            val tx = proxy.startFlowDynamic(ExecutionFlow::class.java, executionJson)
+            val tx = proxy.startFlowDynamic(ExecutionFlowJson::class.java, executionJson)
             val result = tx.returnValue.getOrThrow();
             CREATED to "Transaction with id: ${result.id} created"
         }catch(e :Exception) {
