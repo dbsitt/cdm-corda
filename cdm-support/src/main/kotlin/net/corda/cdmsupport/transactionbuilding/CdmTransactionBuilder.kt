@@ -154,7 +154,7 @@ class CdmTransactionBuilder(notary: Party? = null,
     }
 
     private fun createExecutionStateFromAfterAllocation(execution: Execution, executionLineage: String) : ExecutionState {
-        val executionWithParties : Execution = execution.createExecutionWithPartiesFromAllocationEvent(event, executionLineage)
+        val executionWithParties : Execution = execution. createExecutionWithPartiesFromAllocationEvent(event, executionLineage)
         val counterParty = extractParty(executionWithParties, PartyRoleEnum.COUNTERPARTY)
         executionWithParties.party.removeIf { it.globalReference == counterParty.globalReference }
         executionWithParties.partyRole.removeIf {it.partyReference.globalReference == counterParty.globalReference}

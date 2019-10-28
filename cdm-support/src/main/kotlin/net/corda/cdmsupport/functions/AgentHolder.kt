@@ -294,6 +294,10 @@ class AgentHolder() {
   }
         """.trimIndent())
 
+        val partyMap = listOf(client1ACT0, client1ACT1, client1ACT2,
+                client2ACT0, client2ACT1, client2ACT2,
+                client3ACT0, client3ACT1, client3ACT2,
+                broker1, broker2).map { it.account.accountName.value to it }.toMap()
     }
 
 

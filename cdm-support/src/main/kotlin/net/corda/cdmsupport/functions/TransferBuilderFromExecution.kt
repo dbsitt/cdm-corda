@@ -23,15 +23,19 @@ class TransferBuilderFromExecution {
         val execution = state.execution()
         var buyer: ReferenceWithMetaParty
         var seller: ReferenceWithMetaParty
-        if (checkIfBuyTransferBetweenBrokerAndClient(execution)) {
-            buyer = extractParty(execution, PartyRoleEnum.CLIENT)
-            seller = extractParty(execution, PartyRoleEnum.EXECUTING_ENTITY)
-        } else if (checkIfSellTransferBetweenBrokerAndClient(execution)) {
-            buyer = extractParty(execution, PartyRoleEnum.EXECUTING_ENTITY)
-            seller = extractParty(execution, PartyRoleEnum.CLIENT)
-        } else {
-            buyer = extractParty(execution, PartyRoleEnum.BUYER)
-            seller = extractParty(execution, PartyRoleEnum.SELLER)
+        when {
+            checkIfBuyTransferBetweenBrokerAndClient(execution) -> {
+                buyer = extractParty(execution, PartyRoleEnum.CLIENT)
+                seller = extractParty(execution, PartyRoleEnum.EXECUTING_ENTITY)
+            }
+            checkIfSellTransferBetweenBrokerAndClient(execution) -> {
+                buyer = extractParty(execution, PartyRoleEnum.EXECUTING_ENTITY)
+                seller = extractParty(execution, PartyRoleEnum.CLIENT)
+            }
+            else -> {
+                buyer = extractParty(execution, PartyRoleEnum.BUYER)
+                seller = extractParty(execution, PartyRoleEnum.SELLER)
+            }
         }
         val transferBuilder = TransferPrimitive.builder()
                 .setSettlementType(TransferSettlementEnum.DELIVERY_VERSUS_PAYMENT)

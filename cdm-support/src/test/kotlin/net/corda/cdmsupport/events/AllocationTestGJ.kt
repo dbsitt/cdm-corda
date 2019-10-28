@@ -1,6 +1,6 @@
 package net.corda.cdmsupport.events
 
-import com.derivhack.RealAllocationFlow
+import com.derivhack.AllocationFlowJson
 import com.derivhack.ExecutionFlow
 import net.corda.cdmsupport.CDMEvent
 import net.corda.cdmsupport.eventparsing.readTextFromFile
@@ -26,7 +26,7 @@ class AllocationTestGJ : BaseEventTestGJ() {
         //----------------allocation
         //val allocationEvent = readEventFromJson("/${samplesDirectory}/UC2_allocation_execution_AT1.json")
         val jsonText2 = readTextFromFile("/${samplesDirectory}/UC2_allocation_execution_AT1_GJ.json")
-        val future2 = node2.services.startFlow(RealAllocationFlow(jsonText2)).resultFuture
+        val future2 = node2.services.startFlow(AllocationFlowJson(jsonText2)).resultFuture
         val tx = future2.getOrThrow().toLedgerTransaction(node2.services)
         checkTheBasicFabricOfTheTransaction(tx, 1, 3, 0, 3)
 

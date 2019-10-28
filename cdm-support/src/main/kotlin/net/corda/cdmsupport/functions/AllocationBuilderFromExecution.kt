@@ -5,7 +5,7 @@ import org.isda.cdm.*
 import org.isda.cdm.metafields.*
 import java.math.BigDecimal
 
-fun allocationBuilderFromExecution(amount1: BigDecimal, amount2: BigDecimal, state: ExecutionState): Event {
+fun allocationBuilderFromExecution(amount1: BigDecimal, amount2: BigDecimal, subAccount1: Party, subAccount2: Party, state: ExecutionState): Event {
 //        val subAccount1 = generateParty("Client1_SubAccount1", "Client1_ID1234")
 //        val subAccount2 = generateParty("Client1_SubAccount2", "Client1_ID1235")
 
@@ -14,8 +14,8 @@ fun allocationBuilderFromExecution(amount1: BigDecimal, amount2: BigDecimal, sta
     val client = extractParty(state, PartyRoleEnum.CLIENT)
     val broker = extractParty(state, PartyRoleEnum.EXECUTING_ENTITY)
     val counterParty = extractParty(state, PartyRoleEnum.COUNTERPARTY)
-    val trade1 = generateTrade(amount1, state.execution(), client.value)
-    val trade2 = generateTrade(amount2, state.execution(), client.value)
+    val trade1 = generateTrade(amount1, state.execution(), subAccount1)
+    val trade2 = generateTrade(amount2, state.execution(), subAccount2)
     val executionWithoutPartyBuilder = state.execution().toBuilder()
     val executionWithoutParty = executionWithoutPartyBuilder.clearParty().build()
     var allocation = Event.builder()
@@ -34,6 +34,8 @@ fun allocationBuilderFromExecution(amount1: BigDecimal, amount2: BigDecimal, sta
             .addParty(client.value)
             .addParty(counterParty.value)
             .addParty(broker.value)
+            .addParty(subAccount1)
+            .addParty(subAccount2)
             .setPrimitive(PrimitiveEvent.builder()
                     .addAllocation(
                             AllocationPrimitive.builder()
@@ -51,7 +53,7 @@ fun allocationBuilderFromExecution(amount1: BigDecimal, amount2: BigDecimal, sta
     return allocation
 }
 
-fun allocationBuilderFromExecution(amount1: Execution, amount2: Execution,  state: ExecutionState): Event {
+fun allocationBuilderFromExecution(execution1: Execution, execution2: Execution, state: ExecutionState): Event {
 //        val subAccount1 = generateParty("Client1_SubAccount1", "Client1_ID1234")
 //        val subAccount2 = generateParty("Client1_SubAccount2", "Client1_ID1235")
 
@@ -60,8 +62,8 @@ fun allocationBuilderFromExecution(amount1: Execution, amount2: Execution,  stat
     val client = extractParty(state, PartyRoleEnum.CLIENT)
     val broker = extractParty(state, PartyRoleEnum.EXECUTING_ENTITY)
     val counterParty = extractParty(state, PartyRoleEnum.COUNTERPARTY)
-    val trade1 = generateTrade(amount1.quantity.amount, state.execution(), client.value, globalKey = amount1.meta.globalKey)
-    val trade2 = generateTrade(amount2.quantity.amount, state.execution(), client.value, globalKey = amount2.meta.globalKey)
+    val trade1 = generateTrade(execution1.quantity.amount, state.execution(), client.value, globalKey = execution1.meta.globalKey)
+    val trade2 = generateTrade(execution2.quantity.amount, state.execution(), client.value, globalKey = execution2.meta.globalKey)
     var allocation = Event.builder()
             .setAction(ActionEnum.NEW)
             .setEventEffect(EventEffect.builder()
@@ -103,7 +105,7 @@ private fun generateTrade(amount: BigDecimal, execution: Execution, party: Party
     val executionBuilder = Execution.builder()
             .setExecutionType(ExecutionTypeEnum.ELECTRONIC)
             .setExecutionVenue(LegalEntity.builder().setName(FieldWithMetaString.builder().setValue("ExecutionVenue").build()).build())
-            .addIdentifier(generateIdentifier(execution.identifier[0].issuerReference, "allocate to  " + party.name.value + "-Identifier"))
+            .addIdentifier(generateIdentifier(execution.identifier[0].issuerReference))
             .setPrice(execution.price)
             .setProduct(execution.product)
             .setQuantity(Quantity.builder().setAmount(amount).build())
@@ -111,12 +113,14 @@ private fun generateTrade(amount: BigDecimal, execution: Execution, party: Party
             .setSettlementTerms(settlementTerms)
 
     //        keep counter party and executing entity
-//    val client = execution.partyRole.stream().filter { role -> role.role == PartyRoleEnum.CLIENT }.findFirst().orElseThrow { IllegalStateException("Should have client role here") }
-    execution.partyRole.stream()
+    val client = execution.partyRole.first { it.role == PartyRoleEnum.CLIENT }
+    val clientRole = execution.partyRole.first { it.partyReference.globalReference == client.partyReference.globalReference && it.role != PartyRoleEnum.CLIENT }
+    execution.partyRole
+            .filter { it.partyReference.globalReference != client.partyReference.globalReference }
             .forEach { executionBuilder.addPartyRole(it) }
 
-//    executionBuilder.addPartyRole(PartyRole.builder().setRole(PartyRoleEnum.BUYER).setPartyReference(ReferenceWithMetaParty.builder().setGlobalReference(party.meta.globalKey).build()).build())
-//    executionBuilder.addPartyRole(PartyRole.builder().setRole(PartyRoleEnum.CLIENT).setPartyReference(ReferenceWithMetaParty.builder().setGlobalReference(party.meta.globalKey).build()).build())
+    executionBuilder.addPartyRole(PartyRole.builder().setRole(clientRole.role).setPartyReference(ReferenceWithMetaParty.builder().setGlobalReference(party.meta.globalKey).build()).build())
+    executionBuilder.addPartyRole(PartyRole.builder().setRole(PartyRoleEnum.CLIENT).setPartyReference(ReferenceWithMetaParty.builder().setGlobalReference(party.meta.globalKey).build()).build())
     if (globalKey.isBlank())
         executionBuilder.setMeta(MetaFields.builder().setGlobalKey(hashCDM(executionBuilder.build())).build())
     else

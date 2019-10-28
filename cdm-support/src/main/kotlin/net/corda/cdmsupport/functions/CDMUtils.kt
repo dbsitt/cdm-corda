@@ -21,9 +21,9 @@ const val BROKER1_STR = "Broker1"
 const val BROKER2_STR = "Broker2"
 const val CHAR_STR = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-fun generateIdentifier(issuer: ReferenceWithMetaParty, value: String): Identifier {
+fun generateIdentifier(issuer: ReferenceWithMetaParty): Identifier {
     val builder = Identifier.builder()
-            .addAssignedIdentifier(AssignedIdentifier.builder().setIdentifier(FieldWithMetaString.builder().setValue(value).build()).setVersion(1).build())
+            .addAssignedIdentifier(AssignedIdentifier.builder().setIdentifier(FieldWithMetaString.builder().setValue(generateNameKey()).build()).setVersion(1).build())
             .setIssuerReference(issuer)
     return builder.setMeta(MetaFields.builder().setGlobalKey(hashCDM(builder.build())).build()).build()
 }
@@ -42,9 +42,6 @@ fun generateNameKey(): String {
     for (i in 0..11) {
         builder.append(CHAR_STR.get(generateRandomID36()))
     }
-    println("generateNameKey ##############################")
-    println(builder.toString())
-    println("generateNameKey ##############################")
     return builder.toString()
 }
 
@@ -157,7 +154,7 @@ fun createEvent(request: ExecutionRequest) : Event {
                             .build())
                     .build())
             .setQuantity(Quantity.builder().setAmount(BigDecimal.valueOf(request.quantity)).build())
-            .addIdentifier(generateIdentifier(ReferenceWithMetaParty.builder().setGlobalReference(executingEntity.meta.globalKey).build(), "W3S0XZGEM4S82"))
+            .addIdentifier(generateIdentifier(ReferenceWithMetaParty.builder().setGlobalReference(executingEntity.meta.globalKey).build()))
             .setSettlementTerms(SettlementTerms.builder()
                     .setSettlementAmount(Money.builder()
                             .setCurrency(FieldWithMetaString.builder().setValue("USD").build())

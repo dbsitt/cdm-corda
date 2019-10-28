@@ -66,18 +66,16 @@ class TransferTestGJ : BaseEventTestGJ() {
         serializeCdmObjectIntoFile(exeEvent, "${outputDir}/uc1_out.json")
 
         //----------------allocation
-        val jsonText2 = "{\"executionRef\": \"$executionRef\",\"amount1\": 120000,\"amount2\": 80000, \"subAccount1\" : \"Client1_ACT#1\", \"subAccount2\": \"Client1_ACT#0\"}"
+        val jsonText2 = "{\"executionRef\": \"$executionRef\",\"amount1\": 100000,\"amount2\": 100000, \"subAccount1\" : \"Client1_ACT#1\", \"subAccount2\": \"Client1_ACT#0\"}"
         val future2 = node2.services.startFlow(AllocationFlow(jsonText2)).resultFuture
         val tx2 = future2.getOrThrow().toLedgerTransaction(node2.services)
         checkTheBasicFabricOfTheTransaction(tx2, 1, 3, 0, 3)
-        val allocationExecutionKey = tx2.outputStates.filterIsInstance<ExecutionState>().filter { it.execution().meta.globalKey != executionRef }.map { it.execution().meta.globalKey }.first()
+        val allocationKeys = tx2.outputStates.filterIsInstance<ExecutionState>().filter { it.execution().meta.globalKey != executionRef }.map { it.execution().meta.globalKey }
+        assertTrue(allocationKeys.first() != allocationKeys.last())
+        val allocationExecutionKey = allocationKeys.first()
 
         val allocExecutionB2B = tx2.outputStates.filterIsInstance<ExecutionState>().filter { it.execution().meta.globalKey != tx1ExecutionState.execution().meta.globalKey }
         val allocateBuilder = allocationBuilderFromExecution(allocExecutionB2B.first().execution(), allocExecutionB2B.last().execution(), tx1ExecutionState).toBuilder()
-//        allocateBuilder.setEventEffect(EventEffect.builder()
-//                .addEffectedExecution(ReferenceWithMetaExecution.builder().setGlobalReference(allocExecutionB2B.first().execution().meta.globalKey).build())
-//                .addEffectedExecution(ReferenceWithMetaExecution.builder().setGlobalReference(allocExecutionB2B.first().execution().meta.globalKey).build())
-//                .build())
         serializeCdmObjectIntoFile(allocateBuilder.build(), "${outputDir}/uc2_out.json")
 
 
